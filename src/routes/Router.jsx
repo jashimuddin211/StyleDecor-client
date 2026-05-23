@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
-// // Layouts
-// import MainLayout from "../layouts/MainLayout";
+// Layouts
+import MainLayout from "../layouts/MainLayout";
 // import DashboardLayout from "../layouts/DashboardLayout";
 
 // // Pages
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
   // Main Website Routes
   {
     path: "/",
-    // element: <MainLayout />,
+    element: <MainLayout />,
     // errorElement: <ErrorPage />,
     // children: [
     //   {
