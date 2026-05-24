@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 // Layouts
 import MainLayout from "../layouts/MainLayout";
+import Login from "../components/Auth/Login";
 // import DashboardLayout from "../layouts/DashboardLayout";
 
 // // Pages
@@ -46,7 +47,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <MainLayout />,
     // errorElement: <ErrorPage />,
-    // children: [
+    children: [
     //   {
     //     path: "/",
     //     element: <Home />,
@@ -77,16 +78,16 @@ const router = createBrowserRouter([
     //     element: <CoverageMap />,
     //   },
 
-    //   {
-    //     path: "/login",
-    //     element: <Login />,
-    //   },
+      {
+        path: "/login",
+        element: <Login />,
+      },
 
     //   {
     //     path: "/register",
     //     element: <Register />,
     //   },
-    // ],
+    ],
   },
 
   // Dashboard Routes
