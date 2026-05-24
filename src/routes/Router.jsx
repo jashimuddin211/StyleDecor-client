@@ -11,6 +11,7 @@ import PrivateRoute from "./PrivateRoute";
 import DashboardLayout from "../components/DashBoard/DashboardLayout";
 import DashBoardHome from "../components/DashBoard/DashboardHome";
 import MyProfile from "../components/DashBoard/UserDashBoard/MyProfile";
+import MyBooking from "../components/DashBoard/UserDashBoard/MyBooking";
 // import DashboardLayout from "../layouts/DashboardLayout";
 
 // // Pages
@@ -118,10 +119,10 @@ const router = createBrowserRouter([
         element: <MyProfile />,
       },
 
-//       {
-//         path: "my-bookings",
-//         element: <MyBookings />,
-//       },
+      {
+        path: "my-bookings",
+        element: <MyBooking></MyBooking>,
+      },
 
 //       {
 //         path: "payment-history",
