@@ -1,4 +1,3 @@
-
 import { Link, NavLink } from 'react-router-dom';
 
 import {
@@ -9,9 +8,6 @@ import {
 } from 'lucide-react';
 
 import { useState } from 'react';
-
-// Example logo image
-// import logo from '../../assets/logo.png';
 
 const Navbar = () => {
 
@@ -107,7 +103,6 @@ const Navbar = () => {
                   {
                     user && (
                       <>
-
                         <li>
                           <NavLink to="/dashboard/my-profile">
                             <LayoutDashboard size={18} />
@@ -121,7 +116,6 @@ const Navbar = () => {
                             Logout
                           </button>
                         </li>
-
                       </>
                     )
                   }
@@ -135,13 +129,35 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2"
+            className="flex items-center "
           >
-            {/* <img src={logo} alt="" className="w-10" /> */}
 
-            <h2 className="text-2xl font-bold">
-              Style<span className="text-primary">Decor</span>
-            </h2>
+            <img
+              src="logo.png"
+              alt="StyleDecor Logo"
+              className="w-16 h-16 md:w-20 md:h-20 object-contain"
+            />
+
+            <div className="hidden sm:block">
+
+              <h1 className="text-2xl font-bold leading-none">
+
+                <span className="text-primary">
+                  Style
+                </span>
+
+                <span className="text-secondary">
+                  Decor
+                </span>
+
+              </h1>
+
+              <p className="text-xs text-gray-500">
+                Home & Ceremony Decoration
+              </p>
+
+            </div>
+
           </Link>
 
         </div>
@@ -181,14 +197,16 @@ const Navbar = () => {
                     role="button"
                     className="avatar cursor-pointer"
                   >
-                    <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+
+                    <div className="w-12 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
 
                       <img
                         src="https://i.ibb.co/4pDNDk1/avatar.png"
-                        alt=""
+                        alt="User"
                       />
 
                     </div>
+
                   </div>
 
                   <ul
