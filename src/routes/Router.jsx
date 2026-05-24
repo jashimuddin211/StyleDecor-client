@@ -16,6 +16,7 @@ import DashBoardHome from "../components/DashBoard/DashboardHome";
 import MyProfile from "../components/DashBoard/UserDashBoard/MyProfile";
 import MyBooking from "../components/DashBoard/UserDashBoard/MyBooking";
 import PaymentHistory from "../components/DashBoard/UserDashBoard/PaymentHistory";
+import PaymentSuccess from "../components/DashBoard/UserDashBoard/PaymentSuccess";
 
 // Dashboard (Decorator)
 import AssignedProjects from "../components/DashBoard/DecoratorDashboard/AssignedProjects";
@@ -81,6 +82,10 @@ const router = createBrowserRouter([
       {
         path: "payment-history",
         element: <PaymentHistory />,
+      },
+      {
+        path: "payment-success",
+        element: <PaymentSuccess />,
       },
       {
         path: "assigned-projects",
