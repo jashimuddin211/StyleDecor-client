@@ -27,9 +27,7 @@ const DashboardLayout = () => {
           My Bookings
         </Link>
 
-        <Link className="block p-2 hover:bg-base-300 rounded" to="/dashboard/cancel-booking">
-          Cancel Booking
-        </Link>
+       
 
         <Link className="block p-2 hover:bg-base-300 rounded" to="/dashboard/payment-history">
           <CreditCard size={16} className="inline mr-2" />

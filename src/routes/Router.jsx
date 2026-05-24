@@ -12,6 +12,7 @@ import DashboardLayout from "../components/DashBoard/DashboardLayout";
 import DashBoardHome from "../components/DashBoard/DashboardHome";
 import MyProfile from "../components/DashBoard/UserDashBoard/MyProfile";
 import MyBooking from "../components/DashBoard/UserDashBoard/MyBooking";
+import PaymentHistory from "../components/DashBoard/UserDashBoard/PaymentHistory";
 // import DashboardLayout from "../layouts/DashboardLayout";
 
 // // Pages
@@ -124,10 +125,10 @@ const router = createBrowserRouter([
         element: <MyBooking></MyBooking>,
       },
 
-//       {
-//         path: "payment-history",
-//         element: <PaymentHistory />,
-//       },
+      {
+        path: "payment-history",
+        element: <PaymentHistory />,
+      },
 
 //       // Admin Dashboard
 //       {
