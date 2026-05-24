@@ -17,7 +17,8 @@ import {
   Clock, 
   Briefcase,
   MapPin,
-  ShieldCheck
+  ShieldCheck,
+  User
 } from "lucide-react";
 
 /* ===================== ADMIN LAYOUT ===================== */
@@ -61,6 +62,10 @@ const Sidebar = () => {
         <NavLink to="/admindashboard" end className={({ isActive }) => isActive ? activeLink : normalLink}>
           <LayoutDashboard size={20} />
           Dashboard
+        </NavLink>
+        <NavLink to="/admindashboard/users" className={({ isActive }) => isActive ? activeLink : normalLink}>
+          <User size={20} />
+          Users List
         </NavLink>
         <NavLink to="/admindashboard/decorators" className={({ isActive }) => isActive ? activeLink : normalLink}>
           <Users size={20} />
@@ -182,6 +187,158 @@ const DashboardHome = () => {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+/* ===================== MANAGE USERS (PROMOTE TO DECORATOR) ===================== */
+
+const ManageUsers = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [promotingEmail, setPromotingEmail] = useState(null);
+
+  const fetchUsers = () => {
+    setLoading(true);
+    fetch("http://localhost:4000/users")
+      .then((res) => res.json())
+      .then((data) => {
+        setUsers(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching users:", err);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleMakeDecorator = (email, name) => {
+    if (!window.confirm(`Are you sure you want to promote ${name} to a Decorator?`)) return;
+
+    setPromotingEmail(email);
+
+    fetch(`http://localhost:4000/users/decorator/${email}`, {
+      method: "PATCH",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          alert(`${name} is now a Specialist Decorator!`);
+          fetchUsers();
+        } else {
+          alert(data.message || "Failed to promote user");
+        }
+        setPromotingEmail(null);
+      })
+      .catch((err) => {
+        console.error("Promotion error:", err);
+        setPromotingEmail(null);
+      });
+  };
+
+  const filteredUsers = users.filter(u => 
+    u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-extrabold tracking-tight text-gray-950">User Directory</h2>
+          <p className="text-gray-500 mt-1">Manage user profiles, view registered accounts, and promote users to decorators.</p>
+        </div>
+      </div>
+
+      <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden p-6 space-y-6">
+        <div className="w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search users by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:border-blue-500 bg-white text-sm"
+          />
+        </div>
+
+        {loading && users.length === 0 ? (
+          <div className="flex justify-center py-10">
+            <span className="loading loading-spinner loading-lg text-blue-600"></span>
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <p className="text-sm text-gray-400 py-10 text-center">No users found</p>
+        ) : (
+          <div className="overflow-x-auto border border-gray-50 rounded-2xl">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4">User Details</th>
+                  <th className="px-6 py-4">Current Role</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50 text-sm">
+                {filteredUsers.map((u) => (
+                  <tr key={u._id} className="hover:bg-gray-50/50 transition">
+                    <td className="px-6 py-4 flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm shadow-sm">
+                        {u.name?.charAt(0).toUpperCase() || <User size={16} />}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">{u.name || "Unnamed User"}</div>
+                        <div className="text-xs text-gray-400">{u.email}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
+                        u.role === "admin"
+                          ? "bg-red-50 text-red-700 border border-red-100"
+                          : u.role === "decorator"
+                          ? "bg-blue-50 text-blue-700 border border-blue-100"
+                          : "bg-gray-100 text-gray-700"
+                      }`}>
+                        {u.role || "user"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      {u.role === "admin" ? (
+                        <span className="text-xs text-gray-400 font-semibold italic">Admin Account</span>
+                      ) : u.role === "decorator" ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                          <Check size={14} /> Active Decorator
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => handleMakeDecorator(u.email, u.name || "this user")}
+                          disabled={promotingEmail === u.email}
+                          className="px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold transition duration-150 flex items-center gap-1.5 ml-auto"
+                        >
+                          {promotingEmail === u.email ? (
+                            <>
+                              <span className="loading loading-spinner loading-xs"></span>
+                              Promoting...
+                            </>
+                          ) : (
+                            <>
+                              <UserCheck size={14} />
+                              Make Decorator
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1063,6 +1220,7 @@ export default function AdminDashboard() {
     <Routes>
       <Route path="/" element={<AdminLayout />}>
         <Route index element={<DashboardHome />} />
+        <Route path="users" element={<ManageUsers />} />
         <Route path="decorators" element={<ManageDecorators />} />
         <Route path="services" element={<ManageServices />} />
         <Route path="bookings" element={<ManageBookings />} />

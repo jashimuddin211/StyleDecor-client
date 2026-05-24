@@ -53,23 +53,30 @@ const Register = () => {
     }
 
     try {
+      let photoURL = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80";
 
-      // Upload image to ImageBB
-      const formData = new FormData();
+      // Upload image to ImageBB (only if key and photo are available)
+      if (imageHostingKey && photo) {
+        try {
+          const formData = new FormData();
+          formData.append("image", photo);
 
-      formData.append("image", photo);
+          const imageUploadUrl =
+            `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
 
-      const imageUploadUrl =
-        `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
+          const response = await fetch(imageUploadUrl, {
+            method: "POST",
+            body: formData,
+          });
 
-      const response = await fetch(imageUploadUrl, {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      const photoURL = data.data.url;
+          const data = await response.json();
+          if (data.success && data.data && data.data.url) {
+            photoURL = data.data.url;
+          }
+        } catch (uploadErr) {
+          console.error("Image upload failed, using default avatar:", uploadErr);
+        }
+      }
 
       // Create User
       const result = await createUser(
@@ -98,7 +105,7 @@ const Register = () => {
 
       // Save User To Database
       await fetch(
-        "http://localhost:3000/users",
+        "http://localhost:4000/users",
         {
           method: "POST",
 

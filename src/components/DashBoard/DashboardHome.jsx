@@ -1,3 +1,6 @@
+import { useContext } from "react";
+import { AuthContext } from "../../provider/AuthContext";
+import DecoratorHome from "./DecoratorDashboard/DecoratorHome";
 import {
   Calendar,
   CreditCard,
@@ -8,6 +11,12 @@ import {
 } from "lucide-react";
 
 const DashBoardHome = () => {
+  const { user } = useContext(AuthContext);
+
+  if (user?.role === "decorator") {
+    return <DecoratorHome />;
+  }
+
   return (
     <div className="space-y-8">
 

@@ -17,6 +17,10 @@ import MyProfile from "../components/DashBoard/UserDashBoard/MyProfile";
 import MyBooking from "../components/DashBoard/UserDashBoard/MyBooking";
 import PaymentHistory from "../components/DashBoard/UserDashBoard/PaymentHistory";
 
+// Dashboard (Decorator)
+import AssignedProjects from "../components/DashBoard/DecoratorDashboard/AssignedProjects";
+import DecoratorPaymentHistory from "../components/DashBoard/DecoratorDashboard/DecoratorPaymentHistory";
+
 // Admin
 import AdminDashboard from "../components/DashBoard/AdminDashboard/AdminLayout";
 
@@ -77,6 +81,14 @@ const router = createBrowserRouter([
       {
         path: "payment-history",
         element: <PaymentHistory />,
+      },
+      {
+        path: "assigned-projects",
+        element: <AssignedProjects />,
+      },
+      {
+        path: "earnings-payments",
+        element: <DecoratorPaymentHistory />,
       },
     ],
   },
