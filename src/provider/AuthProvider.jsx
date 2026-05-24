@@ -1,8 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
+import { useEffect, useState } from "react";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -15,93 +11,89 @@ import {
 } from "firebase/auth";
 
 import app from "../firebase/firebase.config";
-
 import { AuthContext } from "./AuthContext";
 
 const auth = getAuth(app);
-
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
-
   const [user, setUser] = useState(null);
-
   const [loading, setLoading] = useState(true);
 
   // Register
   const createUser = (email, password) => {
-
     setLoading(true);
-
-    return createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    return createUserWithEmailAndPassword(auth, email, password);
   };
 
   // Login
   const loginUser = (email, password) => {
-
     setLoading(true);
-
-    return signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    return signInWithEmailAndPassword(auth, email, password);
   };
 
   // Google Login
   const googleLogin = () => {
-
     setLoading(true);
-
-    return signInWithPopup(
-      auth,
-      googleProvider
-    );
+    return signInWithPopup(auth, googleProvider);
   };
 
   // Logout
   const logoutUser = () => {
-
     setLoading(true);
-
     return signOut(auth);
   };
 
   // Update Profile
   const updateUser = (name, photo) => {
-
     return updateProfile(auth.currentUser, {
       displayName: name,
       photoURL: photo,
     });
   };
 
-  // Observer
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      try {
+        if (!currentUser) {
+          setUser(null);
+          return;
+        }
 
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      currentUser => {
+        let role = "user";
 
-        setUser(currentUser);
+        // SAFE role fetch
+        try {
+          if (currentUser.email) {
+            const res = await fetch(
+              `http://localhost:4000/users/${currentUser.email}`
+            );
 
+            if (res.ok) {
+              const dbUser = await res.json();
+              role = dbUser?.role || "user";
+            }
+          }
+        } catch (err) {
+          console.log("Role fetch error:", err);
+        }
+
+        setUser({
+          ...currentUser,
+          role,
+        });
+      } catch (err) {
+        console.log(err);
+        setUser(null);
+      } finally {
         setLoading(false);
-
       }
-    );
+    });
 
-    return () => {
-      unsubscribe();
-    };
-
+    return () => unsubscribe();
   }, []);
 
   const authInfo = {
-
     user,
     loading,
     createUser,
@@ -109,17 +101,12 @@ const AuthProvider = ({ children }) => {
     googleLogin,
     logoutUser,
     updateUser,
-
   };
 
   return (
-
     <AuthContext.Provider value={authInfo}>
-
       {children}
-
     </AuthContext.Provider>
-
   );
 };
 
