@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 const Services = () => {
 
@@ -181,16 +182,11 @@ const Services = () => {
 
 
 
-                                <button
-                                    className="
-                                    btn
-                                    btn-primary
-                                    mt-4"
-                                >
-
-                                    View Details
-
-                                </button>
+                                <Link to={`/services/${service._id}`}>
+    <button className="btn btn-primary mt-4">
+        View Details
+    </button>
+</Link>
 
                             </div>
 
