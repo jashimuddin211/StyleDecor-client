@@ -10,6 +10,7 @@ import ServiceDetails from "../components/services/ServiceDetails";
 import PrivateRoute from "./PrivateRoute";
 import DashboardLayout from "../components/DashBoard/DashboardLayout";
 import DashBoardHome from "../components/DashBoard/DashboardHome";
+import MyProfile from "../components/DashBoard/UserDashBoard/MyProfile";
 // import DashboardLayout from "../layouts/DashboardLayout";
 
 // // Pages
@@ -111,11 +112,11 @@ const router = createBrowserRouter([
         index: true,
         element:<DashBoardHome></DashBoardHome>
       },
-//       // User Dashboard
-//       {
-//         path: "my-profile",
-//         element: <MyProfile />,
-//       },
+      // User Dashboard
+      {
+        path: "my-profile",
+        element: <MyProfile />,
+      },
 
 //       {
 //         path: "my-bookings",

@@ -162,7 +162,7 @@ const Navbar = () => {
             <>
               {/* DASHBOARD BUTTON */}
               <Link
-                to="/dashboard/my-profile"
+                to="/dashboard"
                 className="btn btn-primary hidden md:flex"
               >
                 Dashboard
@@ -195,11 +195,7 @@ const Navbar = () => {
                     </Link>
                   </li>
 
-                  <li>
-                    <Link to="/dashboard">
-                      Dashboard
-                    </Link>
-                  </li>
+                  
 
                   <li>
                     <button onClick={handleLogout} className="text-red-500">
