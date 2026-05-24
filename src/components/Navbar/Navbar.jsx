@@ -89,7 +89,7 @@ const Navbar = () => {
                 {user ? (
                   <>
                     <li>
-                      <Link to="/dashboard/my-profile">
+                      <Link to="/dashboard">
                         <LayoutDashboard size={18} />
                         Dashboard
                       </Link>

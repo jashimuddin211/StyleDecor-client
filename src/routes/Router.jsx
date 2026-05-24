@@ -7,6 +7,8 @@ import Register from "../components/Auth/Register";
 import Services from "../components/services/Services";
 import Home from "../pages/Home/Home";
 import ServiceDetails from "../components/services/ServiceDetails";
+import PrivateRoute from "./PrivateRoute";
+import DashboardLayout from "../components/DashBoard/DashboardLayout";
 // import DashboardLayout from "../layouts/DashboardLayout";
 
 // // Pages
@@ -95,13 +97,13 @@ const router = createBrowserRouter([
   },
 
   // Dashboard Routes
-//   {
-//     path: "/dashboard",
-//     element: (
-//       <PrivateRoute>
-//         <DashboardLayout />
-//       </PrivateRoute>
-//     ),
+  {
+    path: "/dashboard",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
 
 //     children: [
 //       // User Dashboard
@@ -202,8 +204,8 @@ const router = createBrowserRouter([
 //           </DecoratorRoute>
 //         ),
 //       },
-//     ],
-//   },
+  //   ],
+  },
 ]);
 
 export default router;
