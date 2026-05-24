@@ -29,22 +29,22 @@ const Sidebar = () => {
     <div className="w-64 bg-white shadow p-4">
       <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
 
-      <NavLink to="/admin" end className={link}>
+      <NavLink to="/admindashboard" end className={link}>
         Dashboard
       </NavLink>
-      <NavLink to="/admin/decorators" className={link}>
+      <NavLink to="/admindashboard/decorators" className={link}>
         Decorators
       </NavLink>
-      <NavLink to="/admin/services" className={link}>
+      <NavLink to="/admindashboard/services" className={link}>
         Services
       </NavLink>
-      <NavLink to="/admin/bookings" className={link}>
+      <NavLink to="/admindashboard/bookings" className={link}>
         Bookings
       </NavLink>
-      <NavLink to="/admin/assign" className={link}>
+      <NavLink to="/admindashboard/assign" className={link}>
         Assign Decorator
       </NavLink>
-      <NavLink to="/admin/analytics" className={link}>
+      <NavLink to="/admindashboard/analytics" className={link}>
         Analytics
       </NavLink>
     </div>
@@ -209,7 +209,7 @@ const Card = ({ title, value }) => (
 export default function AdminDashboard() {
   return (
     <Routes>
-      <Route path="/admin" element={<AdminLayout />}>
+      <Route path="/" element={<AdminLayout />}>
         <Route index element={<DashboardHome />} />
         <Route path="decorators" element={<ManageDecorators />} />
         <Route path="services" element={<ManageServices />} />

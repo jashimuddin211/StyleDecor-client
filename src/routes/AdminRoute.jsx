@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { AuthContext } from "../provider/AuthContext";
 
-const AdminRoute = () => {
+const AdminRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
 
   // while checking auth state
@@ -25,7 +25,7 @@ const AdminRoute = () => {
   }
 
   // allow admin access
-  return <Outlet />;
+  return children;
 };
 
 export default AdminRoute;

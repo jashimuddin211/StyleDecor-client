@@ -1,10 +1,7 @@
 import { Link, Outlet } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../../provider/AuthContext";
 import { LayoutDashboard, Calendar, CreditCard, User } from "lucide-react";
 
 const DashboardLayout = () => {
-  const {user} = useContext(AuthContext);
 
   return (
     <div className="flex min-h-screen bg-base-100">
