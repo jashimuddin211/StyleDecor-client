@@ -1,4 +1,5 @@
 import TopDecorators from "../decorators/TopDecorators";
+import Coverage from "./Coverage";
 import Hero from "./Hero";
 import HomeServices from "./HomeServices";
 
@@ -10,6 +11,8 @@ const Home = () => {
 <TopDecorators></TopDecorators>
 
             <HomeServices></HomeServices>
+
+            <Coverage></Coverage>
             
             
         </div>
