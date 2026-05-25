@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../provider/AuthContext";
+import { useToast } from "../../../provider/ToastProvider";
 import {
   Calendar,
   MapPin,
   User,
-  DollarSign,
+  
   Phone,
   Mail,
   CheckCircle,
@@ -28,6 +29,7 @@ const STAGES = [
 
 const AssignedProjects = () => {
   const { user } = useContext(AuthContext);
+  const toast = useToast();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("active"); // "all" | "active" | "completed"
@@ -36,7 +38,11 @@ const AssignedProjects = () => {
   const fetchBookings = () => {
     if (user?.email) {
       setLoading(true);
-      fetch(`http://localhost:4000/bookings?decoratorEmail=${user.email}`)
+      fetch(`http://localhost:4000/bookings?decoratorEmail=${user.email}`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+        }
+      })
         .then((res) => res.json())
         .then((data) => {
           setBookings(data);
@@ -65,7 +71,8 @@ const AssignedProjects = () => {
     fetch(`http://localhost:4000/bookings/status/${id}`, {
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("access-token")}`
       },
       body: JSON.stringify({ status: nextStatus })
     })
@@ -74,13 +81,15 @@ const AssignedProjects = () => {
         if (data.success) {
           // Update state locally
           setBookings(prev => prev.map(b => b._id === id ? { ...b, status: nextStatus } : b));
+          toast.success(`Successfully advanced status to "${nextStatus}"!`);
         } else {
-          alert("Failed to update status");
+          toast.error("Failed to update status");
         }
         setUpdatingId(null);
       })
       .catch((err) => {
         console.error("Status update error:", err);
+        toast.error("Network error while updating status.");
         setUpdatingId(null);
       });
   };

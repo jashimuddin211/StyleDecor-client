@@ -4,13 +4,11 @@ import {
   CheckCircle,
   AlertTriangle,
   Loader2,
-  Calendar,
-  MapPin,
   CreditCard,
   Printer,
   ChevronRight,
   ShieldCheck,
-  ArrowLeft
+  
 } from "lucide-react";
 
 const PaymentSuccess = () => {
@@ -30,7 +28,8 @@ const PaymentSuccess = () => {
       fetch("http://localhost:4000/bookings/confirm-payment", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("access-token")}`
         },
         body: JSON.stringify({ bookingId, sessionId })
       })

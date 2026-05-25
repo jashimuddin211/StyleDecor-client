@@ -18,20 +18,37 @@ import {
   Briefcase,
   MapPin,
   ShieldCheck,
-  User
+  User,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+  Sparkles,
+  
+  Menu
 } from "lucide-react";
 
-/* ===================== ADMIN LAYOUT ===================== */
+
 
 const AdminLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="flex h-screen bg-gray-50 text-gray-800 font-sans">
-      <Sidebar />
+    <div className="flex h-screen bg-gray-50 text-gray-800 font-sans overflow-hidden">
+      
+      {/* MOBILE BACKDROP OVERLAY */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+        />
+      )}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Navbar />
+      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 p-8 overflow-y-auto bg-gray-50">
+      <div className="flex-1 flex flex-col overflow-hidden w-full">
+        <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-50 w-full">
           <Outlet />
         </main>
       </div>
@@ -39,55 +56,81 @@ const AdminLayout = () => {
   );
 };
 
-/* ===================== SIDEBAR ===================== */
 
-const Sidebar = () => {
+
+const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const linkBase = "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium my-1";
   const activeLink = `${linkBase} bg-blue-600 text-white shadow-md shadow-blue-200`;
   const normalLink = `${linkBase} text-gray-600 hover:bg-gray-100 hover:text-gray-900`;
 
   return (
-    <div className="w-72 bg-white border-r border-gray-100 p-6 flex flex-col">
-      <div className="flex items-center gap-3 mb-8 px-2">
-        <div className="p-2.5 bg-blue-600 rounded-xl text-white shadow-md shadow-blue-200">
-          <ShieldCheck size={24} />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-gray-900">StyleDecor</h2>
-          <p className="text-xs text-gray-500 font-medium">Admin Control Panel</p>
-        </div>
-      </div>
+    <div className={`
+      fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-100 p-6 flex flex-col justify-between shadow-xl transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:shadow-none lg:z-0
+      ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    `}>
+      <div>
+        <div className="flex items-center justify-between mb-8 px-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-blue-600 rounded-xl text-white shadow-md shadow-blue-200">
+              <ShieldCheck size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-gray-900">StyleDecor</h2>
+              <p className="text-xs text-gray-500 font-medium">Admin Panel</p>
+            </div>
+          </div>
 
-      <nav className="flex-1">
-        <NavLink to="/admindashboard" end className={({ isActive }) => isActive ? activeLink : normalLink}>
-          <LayoutDashboard size={20} />
-          Dashboard
-        </NavLink>
-        <NavLink to="/admindashboard/users" className={({ isActive }) => isActive ? activeLink : normalLink}>
-          <User size={20} />
-          Users List
-        </NavLink>
-        <NavLink to="/admindashboard/decorators" className={({ isActive }) => isActive ? activeLink : normalLink}>
-          <Users size={20} />
-          Decorators
-        </NavLink>
-        <NavLink to="/admindashboard/services" className={({ isActive }) => isActive ? activeLink : normalLink}>
-          <Layers size={20} />
-          Services
-        </NavLink>
-        <NavLink to="/admindashboard/bookings" className={({ isActive }) => isActive ? activeLink : normalLink}>
-          <Calendar size={20} />
-          Bookings
-        </NavLink>
-        <NavLink to="/admindashboard/assign" className={({ isActive }) => isActive ? activeLink : normalLink}>
-          <UserCheck size={20} />
-          Assign Decorator
-        </NavLink>
-        <NavLink to="/admindashboard/analytics" className={({ isActive }) => isActive ? activeLink : normalLink}>
-          <BarChart2 size={20} />
-          Analytics
-        </NavLink>
-      </nav>
+          {/* Close button on mobile */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-1 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <nav className="flex-1">
+          <NavLink to="/admindashboard" end className={({ isActive }) => isActive ? activeLink : normalLink} onClick={() => setSidebarOpen(false)}>
+            <LayoutDashboard size={20} />
+            Dashboard
+          </NavLink>
+          <NavLink to="/admindashboard/users" className={({ isActive }) => isActive ? activeLink : normalLink} onClick={() => setSidebarOpen(false)}>
+            <User size={20} />
+            Users List
+          </NavLink>
+          <NavLink to="/admindashboard/decorators" className={({ isActive }) => isActive ? activeLink : normalLink} onClick={() => setSidebarOpen(false)}>
+            <Users size={20} />
+            Decorators
+          </NavLink>
+          <NavLink to="/admindashboard/services" className={({ isActive }) => isActive ? activeLink : normalLink} onClick={() => setSidebarOpen(false)}>
+            <Layers size={20} />
+            Services
+          </NavLink>
+          <NavLink to="/admindashboard/bookings" className={({ isActive }) => isActive ? activeLink : normalLink} onClick={() => setSidebarOpen(false)}>
+            <Calendar size={20} />
+            Bookings
+          </NavLink>
+          <NavLink to="/admindashboard/assign" className={({ isActive }) => isActive ? activeLink : normalLink} onClick={() => setSidebarOpen(false)}>
+            <UserCheck size={20} />
+            Assign Decorator
+          </NavLink>
+          <NavLink to="/admindashboard/analytics" className={({ isActive }) => isActive ? activeLink : normalLink} onClick={() => setSidebarOpen(false)}>
+            <BarChart2 size={20} />
+            Analytics
+          </NavLink>
+
+          <div className="h-px bg-gray-100 my-4"></div>
+
+          <NavLink 
+            to="/" 
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 text-blue-600 hover:bg-blue-50 border border-dashed border-blue-200/60 shadow-sm shadow-blue-50/20"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <Sparkles size={18} />
+            Website Home
+          </NavLink>
+        </nav>
+      </div>
 
       <div className="mt-auto border-t border-gray-100 pt-4 px-2">
         <div className="flex items-center gap-3">
@@ -104,24 +147,36 @@ const Sidebar = () => {
   );
 };
 
-/* ===================== NAVBAR ===================== */
 
-const Navbar = () => {
+
+const Navbar = ({ setSidebarOpen }) => {
   return (
-    <div className="bg-white border-b border-gray-100 px-8 py-5 flex justify-between items-center">
-      <h1 className="text-2xl font-bold text-gray-900 tracking-tight">StyleDecor Dashboard</h1>
-      <div className="flex items-center gap-4">
-        <span className="flex h-2.5 w-2.5 relative">
+    <div className="bg-white border-b border-gray-100 px-4 sm:px-8 py-4 sm:py-5 flex justify-between items-center w-full">
+      <div className="flex items-center gap-3">
+        
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-xl transition duration-150 cursor-pointer"
+        >
+          <Menu size={22} />
+        </button>
+        <h1 className="text-base sm:text-2xl font-bold text-gray-900 tracking-tight">StyleDecor Admin</h1>
+      </div>
+
+      <div className="flex items-center gap-2 sm:gap-4">
+        <span className="flex h-2 w-2 sm:h-2.5 sm:w-2.5 relative shrink-0">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+          <span className="relative inline-flex rounded-full h-2 sm:h-2.5 w-2 sm:w-2.5 bg-green-500"></span>
         </span>
-        <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">Server Connected</span>
+        <span className="text-[10px] sm:text-sm font-semibold text-gray-600 bg-gray-100 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full whitespace-nowrap">
+          Connected
+        </span>
       </div>
     </div>
   );
 };
 
-/* ===================== OVERVIEW HOME ===================== */
+
 
 const DashboardHome = () => {
   const [stats, setStats] = useState({
@@ -134,7 +189,11 @@ const DashboardHome = () => {
   useEffect(() => {
     Promise.all([
       fetch("http://localhost:4000/users").then(res => res.json()),
-      fetch("http://localhost:4000/bookings").then(res => res.json()),
+      fetch("http://localhost:4000/bookings", {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+        }
+      }).then(res => res.json()),
       fetch("http://localhost:4000/decorators").then(res => res.json())
     ]).then(([users, bookings, decorators]) => {
       const paidBookings = bookings.filter(b => b.paymentStatus === "Paid");
@@ -192,7 +251,7 @@ const DashboardHome = () => {
   );
 };
 
-/* ===================== MANAGE USERS (PROMOTE TO DECORATOR) ===================== */
+
 
 const ManageUsers = () => {
   const [users, setUsers] = useState([]);
@@ -344,7 +403,7 @@ const ManageUsers = () => {
   );
 };
 
-/* ===================== MANAGE DECORATORS (CRUD & APPROVALS) ===================== */
+
 
 const ManageDecorators = () => {
   const [decorators, setDecorators] = useState([]);
@@ -354,10 +413,18 @@ const ManageDecorators = () => {
     name: "", email: "", phone: "", specialty: "", experienceYears: "", image: "", isApproved: true
   });
 
+  // Search and Pagination States
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const fetchDecorators = () => {
     fetch("http://localhost:4000/decorators")
       .then((res) => res.json())
-      .then((data) => setDecorators(data))
+      .then((data) => {
+        setDecorators(data);
+        setCurrentPage(1);
+      })
       .catch(err => console.log(err));
   };
 
@@ -436,6 +503,20 @@ const ManageDecorators = () => {
       .catch(err => console.error(err));
   };
 
+  // Search Logic
+  const filteredDecorators = decorators.filter(d => 
+    d.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    d.specialty?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    d.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Pagination Calculations
+  const totalItems = filteredDecorators.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredDecorators.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -449,47 +530,108 @@ const ManageDecorators = () => {
         </button>
       </div>
 
-      <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-              <th className="px-6 py-4">Decorator Info</th>
-              <th className="px-6 py-4">Specialty</th>
-              <th className="px-6 py-4">Experience</th>
-              <th className="px-6 py-4">Approval Status</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 text-sm">
-            {decorators.map((d) => (
-              <tr key={d._id} className="hover:bg-gray-50/50 transition">
-                <td className="px-6 py-4 flex items-center gap-4">
-                  <img src={d.image || "https://images.unsplash.com/photo-1500648767791-00dcc994a43e"} alt={d.name} className="w-10 h-10 rounded-full object-cover border border-gray-100 shadow-sm" />
-                  <div>
-                    <div className="font-semibold text-gray-900">{d.name}</div>
-                    <div className="text-xs text-gray-400">{d.email}</div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-gray-600 font-medium">{d.specialty}</td>
-                <td className="px-6 py-4 text-gray-600 font-medium">{d.experienceYears} Years</td>
-                <td className="px-6 py-4">
-                  <button onClick={() => handleToggleApproval(d)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition ${d.isApproved !== false ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-red-50 text-red-700 border border-red-100"}`}>
-                    {d.isApproved !== false ? <Check size={14} /> : <X size={14} />}
-                    {d.isApproved !== false ? "Approved" : "Disabled"}
+      <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden p-6 space-y-6">
+        <div className="w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search decorators by name, specialty, or email..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:border-blue-500 bg-white text-sm"
+          />
+        </div>
+
+        {filteredDecorators.length === 0 ? (
+          <p className="text-sm text-gray-400 py-10 text-center">No decorators found</p>
+        ) : (
+          <div className="space-y-4">
+            <div className="overflow-x-auto border border-gray-50 rounded-2xl">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-4">Decorator Info</th>
+                    <th className="px-6 py-4">Specialty</th>
+                    <th className="px-6 py-4">Experience</th>
+                    <th className="px-6 py-4">Approval Status</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-sm">
+                  {currentItems.map((d) => (
+                    <tr key={d._id} className="hover:bg-gray-50/50 transition">
+                      <td className="px-6 py-4 flex items-center gap-4">
+                        <img src={d.image || "https://images.unsplash.com/photo-1500648767791-00dcc994a43e"} alt={d.name} className="w-10 h-10 rounded-full object-cover border border-gray-100 shadow-sm" />
+                        <div>
+                          <div className="font-semibold text-gray-900">{d.name}</div>
+                          <div className="text-xs text-gray-400">{d.email}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600 font-medium">{d.specialty}</td>
+                      <td className="px-6 py-4 text-gray-600 font-medium">{d.experienceYears} Years</td>
+                      <td className="px-6 py-4">
+                        <button onClick={() => handleToggleApproval(d)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition ${d.isApproved !== false ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-red-50 text-red-700 border border-red-100"}`}>
+                          {d.isApproved !== false ? <Check size={14} /> : <X size={14} />}
+                          {d.isApproved !== false ? "Approved" : "Disabled"}
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 text-right space-x-2">
+                        <button onClick={() => openEditModal(d)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition duration-150">
+                          <Edit2 size={16} />
+                        </button>
+                        <button onClick={() => handleDelete(d._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition duration-150">
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination controls */}
+            {totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 border border-gray-100 p-4 rounded-2xl">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, totalItems)} of {totalItems} entries
+                </div>
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="p-2 border border-gray-200 hover:bg-white text-gray-500 disabled:text-gray-300 disabled:hover:bg-transparent rounded-xl transition duration-150"
+                  >
+                    <ChevronLeft size={16} />
                   </button>
-                </td>
-                <td className="px-6 py-4 text-right space-x-2">
-                  <button onClick={() => openEditModal(d)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition duration-150">
-                    <Edit2 size={16} />
+                  
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`w-9 h-9 font-bold text-xs rounded-xl transition duration-150 ${
+                        currentPage === i + 1
+                          ? "bg-blue-600 text-white shadow-md shadow-blue-150"
+                          : "border border-gray-200 hover:bg-white text-gray-600"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="p-2 border border-gray-200 hover:bg-white text-gray-500 disabled:text-gray-300 disabled:hover:bg-transparent rounded-xl transition duration-150"
+                  >
+                    <ChevronRight size={16} />
                   </button>
-                  <button onClick={() => handleDelete(d._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition duration-150">
-                    <Trash2 size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* MODAL */}
@@ -553,7 +695,7 @@ const ManageDecorators = () => {
   );
 };
 
-/* ===================== MANAGE SERVICES (CRUD) ===================== */
+
 
 const ManageServices = () => {
   const [services, setServices] = useState([]);
@@ -562,6 +704,8 @@ const ManageServices = () => {
   const [formData, setFormData] = useState({
     service_name: "", cost: "", unit: "per event", service_category: "wedding", description: "", image: "", createdByEmail: "admin@styledecor.com"
   });
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchServices = () => {
     fetch("http://localhost:4000/services")
@@ -631,6 +775,12 @@ const ManageServices = () => {
       .catch(err => console.error(err));
   };
 
+  // Search Logic
+  const filteredServices = services.filter(s =>
+    s.service_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.service_category?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -644,39 +794,55 @@ const ManageServices = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {services.map((s) => (
-          <div key={s._id} className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition duration-200 flex flex-col">
-            <div className="h-48 overflow-hidden relative">
-              <img src={s.image || "https://images.unsplash.com/photo-1606800052052-a08af7148866"} alt={s.service_name} className="w-full h-full object-cover" />
-              <span className="absolute top-4 right-4 bg-white/95 backdrop-blur px-3.5 py-1.5 rounded-full text-xs font-bold text-blue-700 border border-gray-100 capitalize">
-                {s.service_category}
-              </span>
-            </div>
-            <div className="p-6 flex-1 flex flex-col gap-3">
-              <div>
-                <h3 className="font-bold text-lg text-gray-950 leading-snug line-clamp-1">{s.service_name}</h3>
-                <p className="text-xs text-gray-400 font-medium">Created: {s.createdByEmail}</p>
-              </div>
-              <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">{s.description}</p>
-              <div className="mt-auto pt-4 border-t border-gray-50 flex justify-between items-center">
-                <div>
-                  <span className="text-xl font-extrabold text-gray-900">৳{s.cost?.toLocaleString()}</span>
-                  <span className="text-xs text-gray-400 font-semibold ml-1">/{s.unit}</span>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => openEditModal(s)} className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition duration-150" title="Edit Service">
-                    <Edit2 size={16} />
-                  </button>
-                  <button onClick={() => handleDelete(s._id)} className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition duration-150" title="Delete Service">
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm">
+        <div className="w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Search services by name or category..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:border-blue-500 bg-white text-sm"
+          />
+        </div>
       </div>
+
+      {filteredServices.length === 0 ? (
+        <p className="text-sm text-gray-400 py-10 text-center bg-white border border-gray-100 rounded-3xl">No services found</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredServices.map((s) => (
+            <div key={s._id} className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition duration-200 flex flex-col">
+              <div className="h-48 overflow-hidden relative">
+                <img src={s.image || "https://images.unsplash.com/photo-1606800052052-a08af7148866"} alt={s.service_name} className="w-full h-full object-cover" />
+                <span className="absolute top-4 right-4 bg-white/95 backdrop-blur px-3.5 py-1.5 rounded-full text-xs font-bold text-blue-700 border border-gray-100 capitalize">
+                  {s.service_category}
+                </span>
+              </div>
+              <div className="p-6 flex-1 flex flex-col gap-3">
+                <div>
+                  <h3 className="font-bold text-lg text-gray-950 leading-snug line-clamp-1">{s.service_name}</h3>
+                  <p className="text-xs text-gray-400 font-medium">Created: {s.createdByEmail}</p>
+                </div>
+                <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">{s.description}</p>
+                <div className="mt-auto pt-4 border-t border-gray-50 flex justify-between items-center">
+                  <div>
+                    <span className="text-xl font-extrabold text-gray-900">৳{s.cost?.toLocaleString()}</span>
+                    <span className="text-xs text-gray-400 font-semibold ml-1">/{s.unit}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => openEditModal(s)} className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition duration-150" title="Edit Service">
+                      <Edit2 size={16} />
+                    </button>
+                    <button onClick={() => handleDelete(s._id)} className="p-2.5 text-red-600 hover:bg-red-50 rounded-xl transition duration-150" title="Delete Service">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* MODAL */}
       {modalOpen && (
@@ -744,7 +910,7 @@ const ManageServices = () => {
   );
 };
 
-/* ===================== MANAGE BOOKINGS ===================== */
+
 
 const ManageBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -752,13 +918,24 @@ const ManageBookings = () => {
   const [assignModalBooking, setAssignModalBooking] = useState(null);
   const [selectedDecoratorId, setSelectedDecoratorId] = useState("");
 
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState("date-desc"); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   const loadData = () => {
     Promise.all([
-      fetch("http://localhost:4000/bookings").then(res => res.json()),
+      fetch("http://localhost:4000/bookings", {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+        }
+      }).then(res => res.json()),
       fetch("http://localhost:4000/decorators").then(res => res.json())
     ]).then(([bookingsData, decoratorsData]) => {
       setBookings(bookingsData);
       setDecorators(decoratorsData.filter(d => d.isApproved !== false));
+      setCurrentPage(1); // Reset page on reload
     }).catch(err => console.log(err));
   };
 
@@ -782,7 +959,10 @@ const ManageBookings = () => {
 
     fetch(`http://localhost:4000/bookings/assign/${assignModalBooking._id}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+      },
       body: JSON.stringify({
         decoratorId: decorator._id,
         decoratorName: decorator.name,
@@ -800,7 +980,12 @@ const ManageBookings = () => {
 
   const handleDeleteBooking = (id) => {
     if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-    fetch(`http://localhost:4000/bookings/${id}`, { method: "DELETE" })
+    fetch(`http://localhost:4000/bookings/${id}`, { 
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+      }
+    })
       .then(res => res.json())
       .then(() => {
         loadData();
@@ -809,6 +994,37 @@ const ManageBookings = () => {
       .catch(err => console.error(err));
   };
 
+  // Search Logic
+  const filteredBookings = bookings.filter(b => 
+    b.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    b.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    b.serviceName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Sorting Logic
+  const sortedBookings = [...filteredBookings].sort((a, b) => {
+    if (sortField === "date-desc") {
+      return new Date(b.date) - new Date(a.date);
+    }
+    if (sortField === "date-asc") {
+      return new Date(a.date) - new Date(b.date);
+    }
+    if (sortField === "status-asc") {
+      return (a.paymentStatus || "Unpaid").localeCompare(b.paymentStatus || "Unpaid");
+    }
+    if (sortField === "status-desc") {
+      return (b.paymentStatus || "Unpaid").localeCompare(a.paymentStatus || "Unpaid");
+    }
+    return 0;
+  });
+
+  // Pagination Calculations
+  const totalItems = sortedBookings.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedBookings.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="space-y-6">
       <div>
@@ -816,69 +1032,149 @@ const ManageBookings = () => {
         <p className="text-gray-500 mt-1">Review orders, verify payments, and assign on-site decorators.</p>
       </div>
 
-      <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-              <th className="px-6 py-4">Customer Info</th>
-              <th className="px-6 py-4">Service Required</th>
-              <th className="px-6 py-4">Pricing & Date</th>
-              <th className="px-6 py-4">Payment</th>
-              <th className="px-6 py-4">Assigned Agent</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 text-sm">
-            {bookings.map((b) => (
-              <tr key={b._id} className="hover:bg-gray-50/50 transition">
-                <td className="px-6 py-4">
-                  <div className="font-semibold text-gray-900">{b.userName}</div>
-                  <div className="text-xs text-gray-400">{b.userEmail}</div>
-                  <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-1">
-                    <MapPin size={10} /> {b.location}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="font-semibold text-gray-900">{b.serviceName}</div>
-                  <div className="text-xs text-gray-500">Status: {b.status}</div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="font-bold text-gray-900">৳{b.price?.toLocaleString()}</div>
-                  <div className="text-xs text-gray-400">{b.date}</div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${b.paymentStatus === "Paid" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-orange-50 text-orange-700 border border-orange-100"}`}>
-                    {b.paymentStatus === "Paid" ? "Paid" : "Unpaid"}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  {b.decoratorName ? (
-                    <div>
-                      <div className="font-semibold text-gray-900">{b.decoratorName}</div>
-                      <div className="text-xs text-gray-400">{b.decoratorEmail}</div>
-                    </div>
-                  ) : (
-                    <span className="text-xs text-gray-400 font-medium">None Assigned</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 text-right space-x-2">
-                  {b.paymentStatus === "Paid" ? (
-                    <button onClick={() => openAssignModal(b)} className="px-3.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold transition duration-150">
-                      {b.decoratorName ? "Re-assign" : "Assign"}
-                    </button>
-                  ) : (
-                    <button className="px-3.5 py-1.5 bg-gray-50 text-gray-400 cursor-not-allowed rounded-xl text-xs font-bold border border-gray-100" disabled title="Assigning requires paid booking">
-                      Awaiting Pay
-                    </button>
-                  )}
-                  <button onClick={() => handleDeleteBooking(b._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition duration-150" title="Cancel Booking">
-                    <Trash2 size={16} />
+      <div className="bg-white border border-gray-100 rounded-3xl shadow-sm overflow-hidden p-6 space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="w-full max-w-md">
+            <input
+              type="text"
+              placeholder="Search bookings by customer name, email, or service..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:border-blue-500 bg-white text-sm"
+            />
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0 bg-gray-50 border border-gray-200 px-4 py-2.5 rounded-2xl shadow-sm">
+            <ArrowUpDown size={15} className="text-gray-400" />
+            <select
+              value={sortField}
+              onChange={(e) => {
+                setSortField(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="text-xs font-bold text-gray-600 bg-transparent border-0 focus:outline-none focus:ring-0 cursor-pointer"
+            >
+              <option value="date-desc">Date: Latest</option>
+              <option value="date-asc">Date: Oldest</option>
+              <option value="status-asc">Status: Unpaid ➔ Paid</option>
+              <option value="status-desc">Status: Paid ➔ Unpaid</option>
+            </select>
+          </div>
+        </div>
+
+        {sortedBookings.length === 0 ? (
+          <p className="text-sm text-gray-400 py-10 text-center">No bookings found</p>
+        ) : (
+          <div className="space-y-4">
+            <div className="overflow-x-auto border border-gray-50 rounded-2xl">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-4">Customer Info</th>
+                    <th className="px-6 py-4">Service Required</th>
+                    <th className="px-6 py-4">Pricing & Date</th>
+                    <th className="px-6 py-4">Payment</th>
+                    <th className="px-6 py-4">Assigned Agent</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-sm">
+                  {currentItems.map((b) => (
+                    <tr key={b._id} className="hover:bg-gray-50/50 transition">
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-gray-900">{b.userName}</div>
+                        <div className="text-xs text-gray-400">{b.userEmail}</div>
+                        <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-1">
+                          <MapPin size={10} /> {b.location}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-gray-900">{b.serviceName}</div>
+                        <div className="text-xs text-gray-500">Status: {b.status}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-gray-900">৳{b.price?.toLocaleString()}</div>
+                        <div className="text-xs text-gray-400">{b.date}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${b.paymentStatus === "Paid" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-orange-50 text-orange-700 border border-orange-100"}`}>
+                          {b.paymentStatus === "Paid" ? "Paid" : "Unpaid"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {b.decoratorName ? (
+                          <div>
+                            <div className="font-semibold text-gray-900">{b.decoratorName}</div>
+                            <div className="text-xs text-gray-400">{b.decoratorEmail}</div>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 font-medium">None Assigned</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right space-x-2">
+                        {b.paymentStatus === "Paid" ? (
+                          <button onClick={() => openAssignModal(b)} className="px-3.5 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white rounded-xl text-xs font-bold transition duration-150">
+                            {b.decoratorName ? "Re-assign" : "Assign"}
+                          </button>
+                        ) : (
+                          <button className="px-3.5 py-1.5 bg-gray-50 text-gray-400 cursor-not-allowed rounded-xl text-xs font-bold border border-gray-100" disabled title="Assigning requires paid booking">
+                            Awaiting Pay
+                          </button>
+                        )}
+                        <button onClick={() => handleDeleteBooking(b._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition duration-150" title="Cancel Booking">
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination controls */}
+            {totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 border border-gray-100 p-4 rounded-2xl">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, totalItems)} of {totalItems} entries
+                </div>
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="p-2 border border-gray-200 hover:bg-white text-gray-500 disabled:text-gray-300 disabled:hover:bg-transparent rounded-xl transition duration-150"
+                  >
+                    <ChevronLeft size={16} />
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`w-9 h-9 font-bold text-xs rounded-xl transition duration-150 ${
+                        currentPage === i + 1
+                          ? "bg-blue-600 text-white shadow-md shadow-blue-150"
+                          : "border border-gray-200 hover:bg-white text-gray-600"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="p-2 border border-gray-200 hover:bg-white text-gray-500 disabled:text-gray-300 disabled:hover:bg-transparent rounded-xl transition duration-150"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ASSIGN MODAL */}
@@ -924,7 +1220,7 @@ const ManageBookings = () => {
   );
 };
 
-/* ===================== ASSIGN DECORATOR HELPER VIEW ===================== */
+
 
 const AssignDecorator = () => {
   const [unassignedBookings, setUnassignedBookings] = useState([]);
@@ -933,7 +1229,11 @@ const AssignDecorator = () => {
 
   const loadData = () => {
     Promise.all([
-      fetch("http://localhost:4000/bookings").then(res => res.json()),
+      fetch("http://localhost:4000/bookings", {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+        }
+      }).then(res => res.json()),
       fetch("http://localhost:4000/decorators").then(res => res.json())
     ]).then(([bookings, decoratorsData]) => {
       // Filter: Paid but unassigned bookings
@@ -958,7 +1258,10 @@ const AssignDecorator = () => {
 
     fetch(`http://localhost:4000/bookings/assign/${bookingId}`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+      },
       body: JSON.stringify({
         decoratorId: decorator._id,
         decoratorName: decorator.name,
@@ -1038,7 +1341,7 @@ const AssignDecorator = () => {
   );
 };
 
-/* ===================== ANALYTICS (CHARTS & METRICS) ===================== */
+
 
 const Analytics = () => {
   const [bookings, setBookings] = useState([]);
@@ -1049,7 +1352,11 @@ const Analytics = () => {
   });
 
   useEffect(() => {
-    fetch("http://localhost:4000/bookings")
+    fetch("http://localhost:4000/bookings", {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+      }
+    })
       .then(res => res.json())
       .then(data => {
         setBookings(data);
@@ -1061,7 +1368,7 @@ const Analytics = () => {
       .catch(err => console.error(err));
   }, []);
 
-  // Compute Service Demand: Group by Service Name/Category
+  
   const categoryCounts = bookings.reduce((acc, b) => {
     const name = b.serviceName || "Other";
     acc[name] = (acc[name] || 0) + 1;
@@ -1199,7 +1506,7 @@ const Analytics = () => {
   );
 };
 
-/* ===================== CARD COMPONENT ===================== */
+
 
 const Card = ({ title, value, icon, gradient }) => (
   <div className={`p-6 rounded-3xl text-white shadow-xl bg-gradient-to-br ${gradient} flex items-center justify-between`}>
@@ -1213,7 +1520,7 @@ const Card = ({ title, value, icon, gradient }) => (
   </div>
 );
 
-/* ===================== ROUTES WRAPPER ===================== */
+
 
 export default function AdminDashboard() {
   return (

@@ -22,7 +22,11 @@ const DecoratorPaymentHistory = () => {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`http://localhost:4000/bookings?decoratorEmail=${user.email}`)
+      fetch(`http://localhost:4000/bookings?decoratorEmail=${user.email}`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+        }
+      })
         .then((res) => res.json())
         .then((data) => {
           setBookings(data);

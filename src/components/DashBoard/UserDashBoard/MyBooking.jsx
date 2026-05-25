@@ -16,22 +16,51 @@ const MyBookings = () => {
 
 
   useEffect(() => {
+    let active = true;
 
-    if (user?.email) {
+    const fetchBookings = async (retries = 5) => {
+      if (!user?.email) return;
 
-      fetch(
-        `http://localhost:4000/bookings?email=${user.email}`
-      )
-        .then(res => res.json())
-        .then(data => {
+      const token = localStorage.getItem("access-token");
+      if (!token && retries > 0) {
+        // Wait and retry if token is not available yet due to race condition
+        setTimeout(() => {
+          if (active) fetchBookings(retries - 1);
+        }, 200);
+        return;
+      }
 
-          setBookings(data);
-          setLoading(false);
-
+      try {
+        const res = await fetch(`http://localhost:4000/bookings?email=${user.email}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
         });
+        const data = await res.json();
 
-    }
+        if (active) {
+          if (Array.isArray(data)) {
+            setBookings(data);
+          } else {
+            console.error("Expected array but got:", data);
+            setBookings([]);
+          }
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Error loading bookings:", err);
+        if (active) {
+          setBookings([]);
+          setLoading(false);
+        }
+      }
+    };
 
+    fetchBookings();
+
+    return () => {
+      active = false;
+    };
   }, [user]);
 
 
@@ -48,7 +77,10 @@ const MyBookings = () => {
 
     fetch(`http://localhost:4000/bookings/${id}`, {
 
-      method: "DELETE"
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+      }
 
     })
       .then(res => res.json())
@@ -177,11 +209,7 @@ const MyBookings = () => {
 
               <div className="mt-6 flex gap-3">
 
-                <button className="btn btn-outline flex-1">
-
-                  View Details
-
-                </button>
+                
 
 
                 <button

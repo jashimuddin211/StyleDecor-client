@@ -6,6 +6,9 @@ import DashboardLayout from "../components/DashBoard/DashboardLayout";
 
 // Pages
 import Home from "../pages/Home/Home";
+import About from "../pages/About/About";
+import Contact from "../pages/Contact/Contact";
+import AllDecorators from "../pages/decorators/AllDecorators";
 import Login from "../components/Auth/Login";
 import Register from "../components/Auth/Register";
 import Services from "../components/services/Services";
@@ -21,6 +24,9 @@ import PaymentSuccess from "../components/DashBoard/UserDashBoard/PaymentSuccess
 // Dashboard (Decorator)
 import AssignedProjects from "../components/DashBoard/DecoratorDashboard/AssignedProjects";
 import DecoratorPaymentHistory from "../components/DashBoard/DecoratorDashboard/DecoratorPaymentHistory";
+
+// 404 Page Fallback
+import NotFound from "../components/Common/NotFound";
 
 // Admin
 import AdminDashboard from "../components/DashBoard/AdminDashboard/AdminLayout";
@@ -54,6 +60,18 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />,
+      },
+      {
+        path: "/about",
+        element: <About />,
+      },
+      {
+        path: "/contact",
+        element: <Contact />,
+      },
+      {
+        path: "/decorators",
+        element: <AllDecorators />,
       },
     ],
   },
@@ -107,6 +125,12 @@ const router = createBrowserRouter([
       </AdminRoute>
     ),
   },
+
+  /* ================= 404 PAGE FALLBACK ================= */
+  {
+    path: "*",
+    element: <NotFound />,
+  }
 ]);
 
 export default router;

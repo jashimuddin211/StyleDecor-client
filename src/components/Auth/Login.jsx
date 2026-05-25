@@ -87,7 +87,7 @@ const Login = () => {
 
       <div className="w-full max-w-md bg-base-100 shadow-2xl rounded-2xl p-8">
 
-        {/* Title */}
+        
         <div className="text-center mb-8">
 
           <img

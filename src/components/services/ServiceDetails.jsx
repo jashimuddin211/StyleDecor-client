@@ -51,15 +51,24 @@ const ServiceDetails = () => {
         fetch("http://localhost:4000/bookings", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("access-token")}`
             },
             body: JSON.stringify(booking)
         })
             .then(res => res.json())
             .then(data => {
                 console.log(data);
-                setShowModal(false);
-                alert("Booking Successful!");
+                if (data.success) {
+                    setShowModal(false);
+                    alert("Booking Successful!");
+                } else {
+                    alert(`Booking Failed: ${data.message || "Unauthorized or missing credentials"}`);
+                }
+            })
+            .catch(err => {
+                console.error("Booking error:", err);
+                alert("An error occurred while placing the booking.");
             });
     };
 

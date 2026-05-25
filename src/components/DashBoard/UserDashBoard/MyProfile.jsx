@@ -204,14 +204,7 @@ const MyProfile = () => {
         </div>
 
 
-        {/* Button */}
-        <div className="mt-8">
-
-          <button className="btn btn-primary">
-            Edit Profile
-          </button>
-
-        </div>
+        
 
       </div>
 

@@ -6,8 +6,7 @@ import {
   CreditCard,
   Clock,
   CheckCircle,
-  User,
-  PlusCircle
+  
 } from "lucide-react";
 
 const DashBoardHome = () => {
@@ -175,33 +174,7 @@ const DashBoardHome = () => {
 
 
 
-        {/* Quick Actions */}
-        <div className="bg-base-100 rounded-2xl shadow-xl p-6">
-
-          <h2 className="text-xl font-bold mb-5">
-            Quick Actions
-          </h2>
-
-          <div className="grid gap-4">
-
-            <button className="btn btn-primary justify-start">
-              <PlusCircle size={18} />
-              Book New Service
-            </button>
-
-            <button className="btn btn-outline justify-start">
-              <User size={18} />
-              Update Profile
-            </button>
-
-            <button className="btn btn-outline justify-start">
-              <CreditCard size={18} />
-              Payment History
-            </button>
-
-          </div>
-
-        </div>
+        
 
       </div>
 

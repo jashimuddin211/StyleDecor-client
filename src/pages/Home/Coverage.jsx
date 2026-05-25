@@ -1,5 +1,13 @@
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
 
 const Coverage = () => {
 
@@ -33,34 +41,36 @@ const Coverage = () => {
                 Service Coverage Map
             </h2>
 
-            <MapContainer
-                center={position}
-                zoom={7}
-                scrollWheelZoom={false}
-                className=".h-[800px] w-full rounded-xl"
-            >
-                <TileLayer
-                    attribution='&copy; OpenStreetMap contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
+            <div className="w-full rounded-xl overflow-hidden border border-gray-200 shadow-sm z-0" style={{ height: "500px" }}>
+                <MapContainer
+                    center={position}
+                    zoom={7}
+                    scrollWheelZoom={false}
+                    style={{ height: "100%", width: "100%" }}
+                >
+                    <TileLayer
+                        attribution='&copy; OpenStreetMap contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
 
-                {
-                    data.map((c, index) => (
-                        <Marker
-                            key={index}
-                            position={[c.latitude, c.longitude]}
-                        >
-                            <Popup>
-                                <div>
-                                    <h3 className="font-bold">{c.city}</h3>
-                                    <p>{c.covered_area.join(', ')}</p>
-                                </div>
-                            </Popup>
-                        </Marker>
-                    ))
-                }
+                    {
+                        data.map((c, index) => (
+                          <Marker
+                              key={index}
+                              position={[c.latitude, c.longitude]}
+                          >
+                              <Popup>
+                                  <div>
+                                      <h3 className="font-bold">{c.city}</h3>
+                                      <p>{c.covered_area.join(', ')}</p>
+                                  </div>
+                              </Popup>
+                          </Marker>
+                        ))
+                    }
 
-            </MapContainer>
+                </MapContainer>
+            </div>
         </div>
     );
 };

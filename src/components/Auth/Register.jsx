@@ -55,7 +55,7 @@ const Register = () => {
     try {
       let photoURL = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80";
 
-      // Upload image to ImageBB (only if key and photo are available)
+      
       if (imageHostingKey && photo) {
         try {
           const formData = new FormData();

@@ -57,14 +57,15 @@ const AuthProvider = ({ children }) => {
       try {
         if (!currentUser) {
           setUser(null);
+          localStorage.removeItem("access-token");
           return;
         }
 
         let role = "user";
 
-        // SAFE role fetch
-        try {
-          if (currentUser.email) {
+        if (currentUser.email) {
+          // 1. Fetch user role
+          try {
             const res = await fetch(
               `http://localhost:4000/users/${currentUser.email}`
             );
@@ -73,9 +74,27 @@ const AuthProvider = ({ children }) => {
               const dbUser = await res.json();
               role = dbUser?.role || "user";
             }
+          } catch (err) {
+            console.log("Role fetch error:", err);
           }
-        } catch (err) {
-          console.log("Role fetch error:", err);
+
+          // 2. Fetch JWT access token
+          try {
+            const tokenRes = await fetch("http://localhost:4000/jwt", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: currentUser.email })
+            });
+
+            if (tokenRes.ok) {
+              const tokenData = await tokenRes.json();
+              if (tokenData.token) {
+                localStorage.setItem("access-token", tokenData.token);
+              }
+            }
+          } catch (err) {
+            console.log("JWT fetch error:", err);
+          }
         }
 
         setUser({

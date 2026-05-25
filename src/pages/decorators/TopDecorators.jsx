@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const AVATAR_COLORS = [
   { bg: "#E6F1FB", text: "#0C447C" },
@@ -415,9 +416,9 @@ export default function TopDecorators() {
         </div>
 
         <div className="td-footer">
-          <a href="/decorators" className="td-btn">
+          <Link to="/decorators" className="td-btn">
             Browse all decorators →
-          </a>
+          </Link>
         </div>
       </section>
     </>
