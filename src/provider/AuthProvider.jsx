@@ -67,7 +67,7 @@ const AuthProvider = ({ children }) => {
           // 1. Fetch user role
           try {
             const res = await fetch(
-              `https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/users/${currentUser.email}`
+              `https://style-decor-server-sepia.vercel.app/users/${currentUser.email}`
             );
 
             if (res.ok) {
@@ -80,7 +80,7 @@ const AuthProvider = ({ children }) => {
 
           // 2. Fetch JWT access token
           try {
-            const tokenRes = await fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/jwt", {
+            const tokenRes = await fetch("https://style-decor-server-sepia.vercel.app/jwt", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ email: currentUser.email })

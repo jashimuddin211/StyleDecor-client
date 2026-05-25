@@ -38,7 +38,7 @@ const AssignedProjects = () => {
   const fetchBookings = () => {
     if (user?.email) {
       setLoading(true);
-      fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings?decoratorEmail=${user.email}`, {
+      fetch(`https://style-decor-server-sepia.vercel.app/bookings?decoratorEmail=${user.email}`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("access-token")}`
         }
@@ -68,7 +68,7 @@ const AssignedProjects = () => {
     
     setUpdatingId(id);
 
-    fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings/status/${id}`, {
+    fetch(`https://style-decor-server-sepia.vercel.app/bookings/status/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

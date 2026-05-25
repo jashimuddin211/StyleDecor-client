@@ -22,7 +22,7 @@ const DecoratorPaymentHistory = () => {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings?decoratorEmail=${user.email}`, {
+      fetch(`https://style-decor-server-sepia.vercel.app/bookings?decoratorEmail=${user.email}`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("access-token")}`
         }

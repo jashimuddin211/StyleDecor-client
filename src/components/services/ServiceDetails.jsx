@@ -13,7 +13,7 @@ const ServiceDetails = () => {
 
     useEffect(() => {
         axios
-            .get(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/services/${id}`)
+            .get(`https://style-decor-server-sepia.vercel.app/services/${id}`)
             .then(res => setService(res.data));
     }, [id]);
 
@@ -48,7 +48,7 @@ const ServiceDetails = () => {
             createdAt: new Date()
         };
 
-        fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings", {
+        fetch("https://style-decor-server-sepia.vercel.app/bookings", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

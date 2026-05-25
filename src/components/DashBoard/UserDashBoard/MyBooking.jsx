@@ -31,7 +31,7 @@ const MyBookings = () => {
       }
 
       try {
-        const res = await fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings?email=${user.email}`, {
+        const res = await fetch(`https://style-decor-server-sepia.vercel.app/bookings?email=${user.email}`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -75,7 +75,7 @@ const MyBookings = () => {
     if (!confirmDelete) return;
 
 
-    fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings/${id}`, {
+    fetch(`https://style-decor-server-sepia.vercel.app/bookings/${id}`, {
 
       method: "DELETE",
       headers: {

@@ -188,13 +188,13 @@ const DashboardHome = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/users").then(res => res.json()),
-      fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings", {
+      fetch("https://style-decor-server-sepia.vercel.app/users").then(res => res.json()),
+      fetch("https://style-decor-server-sepia.vercel.app/bookings", {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("access-token")}`
         }
       }).then(res => res.json()),
-      fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators").then(res => res.json())
+      fetch("https://style-decor-server-sepia.vercel.app/decorators").then(res => res.json())
     ]).then(([users, bookings, decorators]) => {
       const paidBookings = bookings.filter(b => b.paymentStatus === "Paid");
       const totalRevenue = paidBookings.reduce((sum, b) => sum + (b.price || 0), 0);
@@ -261,7 +261,7 @@ const ManageUsers = () => {
 
   const fetchUsers = () => {
     setLoading(true);
-    fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/users")
+    fetch("https://style-decor-server-sepia.vercel.app/users")
       .then((res) => res.json())
       .then((data) => {
         setUsers(data);
@@ -282,7 +282,7 @@ const ManageUsers = () => {
 
     setPromotingEmail(email);
 
-    fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/users/decorator/${email}`, {
+    fetch(`https://style-decor-server-sepia.vercel.app/users/decorator/${email}`, {
       method: "PATCH",
     })
       .then((res) => res.json())
@@ -419,7 +419,7 @@ const ManageDecorators = () => {
   const itemsPerPage = 5;
 
   const fetchDecorators = () => {
-    fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators")
+    fetch("https://style-decor-server-sepia.vercel.app/decorators")
       .then((res) => res.json())
       .then((data) => {
         setDecorators(data);
@@ -457,8 +457,8 @@ const ManageDecorators = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const url = currentDecorator 
-      ? `https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators/${currentDecorator._id}`
-      : "https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators";
+      ? `https://style-decor-server-sepia.vercel.app/decorators/${currentDecorator._id}`
+      : "https://style-decor-server-sepia.vercel.app/decorators";
     const method = currentDecorator ? "PATCH" : "POST";
 
     fetch(url, {
@@ -482,7 +482,7 @@ const ManageDecorators = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm("Are you sure you want to delete this decorator?")) return;
-    fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators/${id}`, { method: "DELETE" })
+    fetch(`https://style-decor-server-sepia.vercel.app/decorators/${id}`, { method: "DELETE" })
       .then(res => res.json())
       .then(() => {
         fetchDecorators();
@@ -493,7 +493,7 @@ const ManageDecorators = () => {
 
   const handleToggleApproval = (dec) => {
     const nextStatus = dec.isApproved !== false ? false : true;
-    fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators/${dec._id}`, {
+    fetch(`https://style-decor-server-sepia.vercel.app/decorators/${dec._id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isApproved: nextStatus })
@@ -708,7 +708,7 @@ const ManageServices = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchServices = () => {
-    fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/services")
+    fetch("https://style-decor-server-sepia.vercel.app/services")
       .then((res) => res.json())
       .then((data) => setServices(data))
       .catch(err => console.log(err));
@@ -743,8 +743,8 @@ const ManageServices = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const url = currentService
-      ? `https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/services/${currentService._id}`
-      : "https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/services";
+      ? `https://style-decor-server-sepia.vercel.app/services/${currentService._id}`
+      : "https://style-decor-server-sepia.vercel.app/services";
     const method = currentService ? "PATCH" : "POST";
 
     fetch(url, {
@@ -766,7 +766,7 @@ const ManageServices = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm("Are you sure you want to delete this service?")) return;
-    fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/services/${id}`, { method: "DELETE" })
+    fetch(`https://style-decor-server-sepia.vercel.app/services/${id}`, { method: "DELETE" })
       .then(res => res.json())
       .then(() => {
         fetchServices();
@@ -926,12 +926,12 @@ const ManageBookings = () => {
 
   const loadData = () => {
     Promise.all([
-      fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings", {
+      fetch("https://style-decor-server-sepia.vercel.app/bookings", {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("access-token")}`
         }
       }).then(res => res.json()),
-      fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators").then(res => res.json())
+      fetch("https://style-decor-server-sepia.vercel.app/decorators").then(res => res.json())
     ]).then(([bookingsData, decoratorsData]) => {
       setBookings(bookingsData);
       setDecorators(decoratorsData.filter(d => d.isApproved !== false));
@@ -957,7 +957,7 @@ const ManageBookings = () => {
     const decorator = decorators.find(d => d._id === selectedDecoratorId);
     if (!decorator) return;
 
-    fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings/assign/${assignModalBooking._id}`, {
+    fetch(`https://style-decor-server-sepia.vercel.app/bookings/assign/${assignModalBooking._id}`, {
       method: "PATCH",
       headers: { 
         "Content-Type": "application/json",
@@ -980,7 +980,7 @@ const ManageBookings = () => {
 
   const handleDeleteBooking = (id) => {
     if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-    fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings/${id}`, { 
+    fetch(`https://style-decor-server-sepia.vercel.app/bookings/${id}`, { 
       method: "DELETE",
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("access-token")}`
@@ -1229,12 +1229,12 @@ const AssignDecorator = () => {
 
   const loadData = () => {
     Promise.all([
-      fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings", {
+      fetch("https://style-decor-server-sepia.vercel.app/bookings", {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("access-token")}`
         }
       }).then(res => res.json()),
-      fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators").then(res => res.json())
+      fetch("https://style-decor-server-sepia.vercel.app/decorators").then(res => res.json())
     ]).then(([bookings, decoratorsData]) => {
       // Filter: Paid but unassigned bookings
       const unassigned = bookings.filter(b => b.paymentStatus === "Paid" && !b.decoratorName);
@@ -1256,7 +1256,7 @@ const AssignDecorator = () => {
     const decorator = decorators.find(d => d._id === decoratorId);
     if (!decorator) return;
 
-    fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings/assign/${bookingId}`, {
+    fetch(`https://style-decor-server-sepia.vercel.app/bookings/assign/${bookingId}`, {
       method: "PATCH",
       headers: { 
         "Content-Type": "application/json",
@@ -1352,7 +1352,7 @@ const Analytics = () => {
   });
 
   useEffect(() => {
-    fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings", {
+    fetch("https://style-decor-server-sepia.vercel.app/bookings", {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("access-token")}`
       }

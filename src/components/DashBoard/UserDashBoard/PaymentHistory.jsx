@@ -43,7 +43,7 @@ const PaymentHistory = () => {
       }
 
       try {
-        const res = await fetch(`https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings?email=${user.email}`, {
+        const res = await fetch(`https://style-decor-server-sepia.vercel.app/bookings?email=${user.email}`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -78,7 +78,7 @@ const PaymentHistory = () => {
   // Redirection to Stripe Checkout
   const handlePay = (item) => {
     setPayingId(item._id);
-    fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/create-checkout-session", {
+    fetch("https://style-decor-server-sepia.vercel.app/create-checkout-session", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

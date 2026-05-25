@@ -31,7 +31,7 @@ export default function AllDecorators() {
   useEffect(() => {
     const fetchDecorators = async () => {
       try {
-        const res = await fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators");
+        const res = await fetch("https://style-decor-server-sepia.vercel.app/decorators");
         if (!res.ok) throw new Error("API error");
         const data = await res.json();
         // Show only approved decorators
