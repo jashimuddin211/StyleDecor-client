@@ -105,7 +105,7 @@ const Register = () => {
 
       // Save User To Database
       await fetch(
-        "http://localhost:4000/users",
+        "https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/users",
         {
           method: "POST",
 

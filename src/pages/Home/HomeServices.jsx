@@ -7,7 +7,7 @@ const HomeServices = () => {
 
     useEffect(() => {
 
-        fetch("http://localhost:4000/services")
+        fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/services")
             .then(res => res.json())
             .then(data => {
 

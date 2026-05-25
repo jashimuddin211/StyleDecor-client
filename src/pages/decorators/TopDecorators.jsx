@@ -119,7 +119,7 @@ export default function TopDecorators() {
     const fetchDecorators = async () => {
       try {
         const res = await fetch(
-          "http://localhost:4000/decorators/top?limit=6"
+          "https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/decorators/top?limit=6"
         );
         if (!res.ok) throw new Error("API error");
         const data = await res.json();

@@ -25,7 +25,7 @@ const PaymentSuccess = () => {
   useEffect(() => {
     if (bookingId && sessionId) {
       // Hit the server's payment confirmation endpoint
-      fetch("http://localhost:4000/bookings/confirm-payment", {
+      fetch("https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/bookings/confirm-payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

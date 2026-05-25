@@ -12,7 +12,7 @@ const Services = () => {
     useEffect(() => {
 
         fetch(
-            `http://localhost:4000/services?search=${search}&category=${category}&min=${min}&max=${max}`
+            `https://style-decor-server-l3yaoxh30-jashimuddin211s-projects.vercel.app/services?search=${search}&category=${category}&min=${min}&max=${max}`
         )
             .then(res => res.json())
             .then(data => setServices(data))
