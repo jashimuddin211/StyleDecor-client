@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 
 import useAuth from "../../hooks/useAuth";
+import { useToast } from "../../provider/ToastProvider";
 
 const Login = () => {
 
@@ -24,6 +25,9 @@ const Login = () => {
   const location = useLocation();
 
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const toast = useToast();
 
   const from = location?.state || "/";
 
@@ -33,19 +37,38 @@ const Login = () => {
     e.preventDefault();
 
     setError("");
+    setErrors({});
 
     const form = e.target;
 
-    const email = form.email.value;
+    const email = form.email.value.trim();
 
     const password = form.password.value;
 
+    // Client-side validation
+    const newErrors = {};
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!password) {
+      newErrors.password = "Password is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please enter a valid email and password.");
+      return;
+    }
+
+    setSubmitting(true);
     loginUser(email, password)
 
       .then(result => {
 
         console.log(result.user);
-
+        toast.success("Welcome back! Login successful.");
         navigate(from);
 
       })
@@ -55,7 +78,11 @@ const Login = () => {
         console.log(error.message);
 
         setError("Invalid email or password");
+        toast.error("Invalid email or password. Please try again.");
 
+      })
+      .finally(() => {
+        setSubmitting(false);
       });
 
   };
@@ -68,7 +95,7 @@ const Login = () => {
       .then(result => {
 
         console.log(result.user);
-
+        toast.success("Google login successful!");
         navigate(from);
 
       })
@@ -76,6 +103,7 @@ const Login = () => {
       .catch(error => {
 
         console.log(error.message);
+        toast.error("Google login failed.");
 
       });
 
@@ -114,12 +142,13 @@ const Login = () => {
         <form
           onSubmit={handleLogin}
           className="space-y-5"
+          noValidate
         >
 
           {/* Email */}
           <div>
 
-            <label className="label">
+            <label className="label" htmlFor="login-email">
 
               <span className="label-text">
                 Email
@@ -130,17 +159,23 @@ const Login = () => {
             <input
               type="email"
               name="email"
+              id="login-email"
               placeholder="Enter your email"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
               required
             />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1" role="alert">
+                {errors.email}
+              </p>
+            )}
 
           </div>
 
           {/* Password */}
           <div>
 
-            <label className="label">
+            <label className="label" htmlFor="login-password">
 
               <span className="label-text">
                 Password
@@ -151,10 +186,16 @@ const Login = () => {
             <input
               type="password"
               name="password"
+              id="login-password"
               placeholder="Enter your password"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
               required
             />
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1" role="alert">
+                {errors.password}
+              </p>
+            )}
 
           </div>
 
@@ -172,9 +213,15 @@ const Login = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="btn btn-primary w-full"
+            disabled={submitting}
+            className="btn btn-primary w-full flex items-center justify-center gap-2"
           >
-            Login
+            {submitting ? (
+              <>
+                <span className="loading loading-spinner loading-xs"></span>
+                Logging in...
+              </>
+            ) : "Login"}
           </button>
 
         </form>

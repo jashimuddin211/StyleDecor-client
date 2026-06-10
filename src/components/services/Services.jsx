@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router-dom";
 
 const Services = () => {
-
+    const [searchParams] = useSearchParams();
     const [services, setServices] = useState([]);
     const [search, setSearch] = useState("");
-    const [category, setCategory] = useState("");
+    const [category, setCategory] = useState(searchParams.get("category") || "");
     const [min, setMin] = useState("");
     const [max, setMax] = useState("");
 
     useEffect(() => {
-
         fetch(
             `https://style-decor-server-sepia.vercel.app/services?search=${search}&category=${category}&min=${min}&max=${max}`
         )
@@ -45,6 +44,7 @@ const Services = () => {
 
                 <select
                     className="select select-bordered w-full"
+                    value={category}
                     onChange={(e) =>
                         setCategory(e.target.value)
                     }

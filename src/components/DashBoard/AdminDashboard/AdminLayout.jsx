@@ -1,5 +1,8 @@
 import { NavLink, Routes, Route, Outlet } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useToast } from "../../../provider/ToastProvider";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://style-decor-server-sepia.vercel.app";
 import { 
   LayoutDashboard, 
   Users, 
@@ -188,13 +191,13 @@ const DashboardHome = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch("https://style-decor-server-sepia.vercel.app/users").then(res => res.json()),
-      fetch("https://style-decor-server-sepia.vercel.app/bookings", {
+      fetch(`${API_BASE_URL}/users`).then(res => res.json()),
+      fetch(`${API_BASE_URL}/bookings`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("access-token")}`
         }
       }).then(res => res.json()),
-      fetch("https://style-decor-server-sepia.vercel.app/decorators").then(res => res.json())
+      fetch(`${API_BASE_URL}/decorators`).then(res => res.json())
     ]).then(([users, bookings, decorators]) => {
       const paidBookings = bookings.filter(b => b.paymentStatus === "Paid");
       const totalRevenue = paidBookings.reduce((sum, b) => sum + (b.price || 0), 0);
@@ -261,7 +264,7 @@ const ManageUsers = () => {
 
   const fetchUsers = () => {
     setLoading(true);
-    fetch("https://style-decor-server-sepia.vercel.app/users")
+    fetch(`${API_BASE_URL}/users`)
       .then((res) => res.json())
       .then((data) => {
         setUsers(data);
@@ -282,7 +285,7 @@ const ManageUsers = () => {
 
     setPromotingEmail(email);
 
-    fetch(`https://style-decor-server-sepia.vercel.app/users/decorator/${email}`, {
+    fetch(`${API_BASE_URL}/users/decorator/${email}`, {
       method: "PATCH",
     })
       .then((res) => res.json())
@@ -419,7 +422,7 @@ const ManageDecorators = () => {
   const itemsPerPage = 5;
 
   const fetchDecorators = () => {
-    fetch("https://style-decor-server-sepia.vercel.app/decorators")
+    fetch(`${API_BASE_URL}/decorators`)
       .then((res) => res.json())
       .then((data) => {
         setDecorators(data);
@@ -457,8 +460,8 @@ const ManageDecorators = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const url = currentDecorator 
-      ? `https://style-decor-server-sepia.vercel.app/decorators/${currentDecorator._id}`
-      : "https://style-decor-server-sepia.vercel.app/decorators";
+      ? `${API_BASE_URL}/decorators/${currentDecorator._id}`
+      : `${API_BASE_URL}/decorators`;
     const method = currentDecorator ? "PATCH" : "POST";
 
     fetch(url, {
@@ -482,7 +485,7 @@ const ManageDecorators = () => {
 
   const handleDelete = (id) => {
     if (!window.confirm("Are you sure you want to delete this decorator?")) return;
-    fetch(`https://style-decor-server-sepia.vercel.app/decorators/${id}`, { method: "DELETE" })
+    fetch(`${API_BASE_URL}/decorators/${id}`, { method: "DELETE" })
       .then(res => res.json())
       .then(() => {
         fetchDecorators();
@@ -493,7 +496,7 @@ const ManageDecorators = () => {
 
   const handleToggleApproval = (dec) => {
     const nextStatus = dec.isApproved !== false ? false : true;
-    fetch(`https://style-decor-server-sepia.vercel.app/decorators/${dec._id}`, {
+    fetch(`${API_BASE_URL}/decorators/${dec._id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isApproved: nextStatus })
@@ -705,21 +708,33 @@ const ManageServices = () => {
     service_name: "", cost: "", unit: "per event", service_category: "wedding", description: "", image: "", createdByEmail: "admin@styledecor.com"
   });
 
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const toast = useToast();
 
-  const fetchServices = () => {
-    fetch("https://style-decor-server-sepia.vercel.app/services")
-      .then((res) => res.json())
+  const fetchServices = useCallback(() => {
+    fetch(`${API_BASE_URL}/services`)
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error("Failed to load services");
+        }
+        return res.json();
+      })
       .then((data) => setServices(data))
-      .catch(err => console.log(err));
-  };
+      .catch(err => {
+        console.log(err);
+        toast.error("Failed to load services catalogue.");
+      });
+  }, [toast]);
 
   useEffect(() => {
     fetchServices();
-  }, []);
+  }, [fetchServices]);
 
   const openAddModal = () => {
     setCurrentService(null);
+    setErrors({});
     setFormData({
       service_name: "", cost: "", unit: "per event", service_category: "wedding", description: "", image: "https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=800&q=60", createdByEmail: "admin@styledecor.com"
     });
@@ -728,6 +743,7 @@ const ManageServices = () => {
 
   const openEditModal = (service) => {
     setCurrentService(service);
+    setErrors({});
     setFormData({
       service_name: service.service_name,
       cost: service.cost || "",
@@ -740,13 +756,46 @@ const ManageServices = () => {
     setModalOpen(true);
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.service_name.trim() || formData.service_name.trim().length < 3) {
+      newErrors.service_name = "Service name must be at least 3 characters.";
+    }
+    const costNum = parseInt(formData.cost);
+    if (isNaN(costNum) || costNum <= 0) {
+      newErrors.cost = "Cost must be a positive number.";
+    }
+    if (!formData.unit.trim() || formData.unit.trim().length < 2) {
+      newErrors.unit = "Unit must be at least 2 characters.";
+    }
+    if (!formData.createdByEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.createdByEmail.trim())) {
+      newErrors.createdByEmail = "Please enter a valid email address.";
+    }
+    if (formData.image.trim() && !/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(formData.image.trim())) {
+      newErrors.image = "Please enter a valid URL.";
+    }
+    if (!formData.description.trim() || formData.description.trim().length < 10) {
+      newErrors.description = "Description must be at least 10 characters.";
+    }
+    return newErrors;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setErrors({});
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please resolve the validation errors.");
+      return;
+    }
+
     const url = currentService
-      ? `https://style-decor-server-sepia.vercel.app/services/${currentService._id}`
-      : "https://style-decor-server-sepia.vercel.app/services";
+      ? `${API_BASE_URL}/services/${currentService._id}`
+      : `${API_BASE_URL}/services`;
     const method = currentService ? "PATCH" : "POST";
 
+    setSubmitting(true);
     fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
@@ -755,24 +804,44 @@ const ManageServices = () => {
         cost: parseInt(formData.cost) || 0
       })
     })
-      .then(res => res.json())
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Something went wrong.");
+        }
+        return data;
+      })
       .then(() => {
         setModalOpen(false);
         fetchServices();
-        alert(currentService ? "Service updated successfully" : "Service created successfully");
+        toast.success(currentService ? "Service updated successfully!" : "Service created successfully!");
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        toast.error(err.message || "Failed to save service package.");
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
   };
 
   const handleDelete = (id) => {
     if (!window.confirm("Are you sure you want to delete this service?")) return;
-    fetch(`https://style-decor-server-sepia.vercel.app/services/${id}`, { method: "DELETE" })
-      .then(res => res.json())
+    fetch(`${API_BASE_URL}/services/${id}`, { method: "DELETE" })
+      .then(async res => {
+        if (!res.ok) {
+          throw new Error("Failed to delete service.");
+        }
+        return res.json();
+      })
       .then(() => {
         fetchServices();
-        alert("Service deleted successfully");
+        toast.success("Service deleted successfully!");
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        toast.error(err.message || "Failed to delete service.");
+      });
   };
 
   // Search Logic
@@ -855,25 +924,70 @@ const ManageServices = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Service Name</label>
-                <input type="text" value={formData.service_name} onChange={e => setFormData({ ...formData, service_name: e.target.value })} className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:border-blue-500" required />
+                <label htmlFor="service-name" className="block text-xs font-bold uppercase text-gray-400 mb-1">Service Name</label>
+                <input
+                  type="text"
+                  id="service-name"
+                  value={formData.service_name}
+                  onChange={e => {
+                    setFormData({ ...formData, service_name: e.target.value });
+                    if (errors.service_name) setErrors(prev => ({ ...prev, service_name: "" }));
+                  }}
+                  className={`w-full border rounded-2xl p-3 focus:outline-none focus:border-blue-500 bg-white ${errors.service_name ? 'border-red-500' : 'border-gray-200'}`}
+                  required
+                />
+                {errors.service_name && (
+                  <p className="text-red-500 text-xs mt-1" role="alert">{errors.service_name}</p>
+                )}
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Cost (৳)</label>
-                  <input type="number" value={formData.cost} onChange={e => setFormData({ ...formData, cost: e.target.value })} className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:border-blue-500" required />
+                  <label htmlFor="service-cost" className="block text-xs font-bold uppercase text-gray-400 mb-1">Cost (৳)</label>
+                  <input
+                    type="number"
+                    id="service-cost"
+                    value={formData.cost}
+                    onChange={e => {
+                      setFormData({ ...formData, cost: e.target.value });
+                      if (errors.cost) setErrors(prev => ({ ...prev, cost: "" }));
+                    }}
+                    className={`w-full border rounded-2xl p-3 focus:outline-none focus:border-blue-500 bg-white ${errors.cost ? 'border-red-500' : 'border-gray-200'}`}
+                    required
+                  />
+                  {errors.cost && (
+                    <p className="text-red-500 text-xs mt-1" role="alert">{errors.cost}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Unit</label>
-                  <input type="text" value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })} placeholder="e.g. per event" className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:border-blue-500" required />
+                  <label htmlFor="service-unit" className="block text-xs font-bold uppercase text-gray-400 mb-1">Unit</label>
+                  <input
+                    type="text"
+                    id="service-unit"
+                    value={formData.unit}
+                    onChange={e => {
+                      setFormData({ ...formData, unit: e.target.value });
+                      if (errors.unit) setErrors(prev => ({ ...prev, unit: "" }));
+                    }}
+                    placeholder="e.g. per event"
+                    className={`w-full border rounded-2xl p-3 focus:outline-none focus:border-blue-500 bg-white ${errors.unit ? 'border-red-500' : 'border-gray-200'}`}
+                    required
+                  />
+                  {errors.unit && (
+                    <p className="text-red-500 text-xs mt-1" role="alert">{errors.unit}</p>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Category</label>
-                  <select value={formData.service_category} onChange={e => setFormData({ ...formData, service_category: e.target.value })} className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:border-blue-500 bg-white">
+                  <label htmlFor="service-category" className="block text-xs font-bold uppercase text-gray-400 mb-1">Category</label>
+                  <select
+                    id="service-category"
+                    value={formData.service_category}
+                    onChange={e => setFormData({ ...formData, service_category: e.target.value })}
+                    className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:border-blue-500 bg-white"
+                  >
                     <option value="wedding">Wedding</option>
                     <option value="home">Home Interior</option>
                     <option value="corporate">Corporate</option>
@@ -881,25 +995,79 @@ const ManageServices = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Admin Creator Email</label>
-                  <input type="email" value={formData.createdByEmail} onChange={e => setFormData({ ...formData, createdByEmail: e.target.value })} className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:border-blue-500" required />
+                  <label htmlFor="service-email" className="block text-xs font-bold uppercase text-gray-400 mb-1">Admin Creator Email</label>
+                  <input
+                    type="email"
+                    id="service-email"
+                    value={formData.createdByEmail}
+                    onChange={e => {
+                      setFormData({ ...formData, createdByEmail: e.target.value });
+                      if (errors.createdByEmail) setErrors(prev => ({ ...prev, createdByEmail: "" }));
+                    }}
+                    className={`w-full border rounded-2xl p-3 focus:outline-none focus:border-blue-500 bg-white ${errors.createdByEmail ? 'border-red-500' : 'border-gray-200'}`}
+                    required
+                  />
+                  {errors.createdByEmail && (
+                    <p className="text-red-500 text-xs mt-1" role="alert">{errors.createdByEmail}</p>
+                  )}
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Image URL</label>
-                <input type="text" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:border-blue-500" />
+                <label htmlFor="service-image" className="block text-xs font-bold uppercase text-gray-400 mb-1">Image URL</label>
+                <input
+                  type="text"
+                  id="service-image"
+                  value={formData.image}
+                  onChange={e => {
+                    setFormData({ ...formData, image: e.target.value });
+                    if (errors.image) setErrors(prev => ({ ...prev, image: "" }));
+                  }}
+                  className={`w-full border rounded-2xl p-3 focus:outline-none focus:border-blue-500 bg-white ${errors.image ? 'border-red-500' : 'border-gray-200'}`}
+                />
+                {errors.image && (
+                  <p className="text-red-500 text-xs mt-1" role="alert">{errors.image}</p>
+                )}
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Description</label>
-                <textarea rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full border border-gray-200 rounded-2xl p-3 focus:outline-none focus:border-blue-500" required />
+                <label htmlFor="service-desc" className="block text-xs font-bold uppercase text-gray-400 mb-1">Description</label>
+                <textarea
+                  id="service-desc"
+                  rows="3"
+                  value={formData.description}
+                  onChange={e => {
+                    setFormData({ ...formData, description: e.target.value });
+                    if (errors.description) setErrors(prev => ({ ...prev, description: "" }));
+                  }}
+                  className={`w-full border rounded-2xl p-3 focus:outline-none focus:border-blue-500 bg-white ${errors.description ? 'border-red-500' : 'border-gray-200'}`}
+                  required
+                />
+                {errors.description && (
+                  <p className="text-red-500 text-xs mt-1" role="alert">{errors.description}</p>
+                )}
               </div>
 
               <div className="flex gap-4 pt-4 border-t border-gray-100">
-                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold p-3.5 rounded-2xl transition duration-150">
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(false)}
+                  disabled={submitting}
+                  className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold p-3.5 rounded-2xl transition duration-150 bg-white"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3.5 rounded-2xl transition duration-150">
-                  {currentService ? "Save Changes" : "Create Service"}
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3.5 rounded-2xl transition duration-150 flex items-center justify-center gap-2 border-0"
+                >
+                  {submitting ? (
+                    <>
+                      <span className="loading loading-spinner loading-xs"></span>
+                      Saving...
+                    </>
+                  ) : (
+                    currentService ? "Save Changes" : "Create Service"
+                  )}
                 </button>
               </div>
             </form>
@@ -926,12 +1094,12 @@ const ManageBookings = () => {
 
   const loadData = () => {
     Promise.all([
-      fetch("https://style-decor-server-sepia.vercel.app/bookings", {
+      fetch(`${API_BASE_URL}/bookings`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("access-token")}`
         }
       }).then(res => res.json()),
-      fetch("https://style-decor-server-sepia.vercel.app/decorators").then(res => res.json())
+      fetch(`${API_BASE_URL}/decorators`).then(res => res.json())
     ]).then(([bookingsData, decoratorsData]) => {
       setBookings(bookingsData);
       setDecorators(decoratorsData.filter(d => d.isApproved !== false));
@@ -957,7 +1125,7 @@ const ManageBookings = () => {
     const decorator = decorators.find(d => d._id === selectedDecoratorId);
     if (!decorator) return;
 
-    fetch(`https://style-decor-server-sepia.vercel.app/bookings/assign/${assignModalBooking._id}`, {
+    fetch(`${API_BASE_URL}/bookings/assign/${assignModalBooking._id}`, {
       method: "PATCH",
       headers: { 
         "Content-Type": "application/json",
@@ -980,7 +1148,7 @@ const ManageBookings = () => {
 
   const handleDeleteBooking = (id) => {
     if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-    fetch(`https://style-decor-server-sepia.vercel.app/bookings/${id}`, { 
+    fetch(`${API_BASE_URL}/bookings/${id}`, { 
       method: "DELETE",
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("access-token")}`
@@ -1229,12 +1397,12 @@ const AssignDecorator = () => {
 
   const loadData = () => {
     Promise.all([
-      fetch("https://style-decor-server-sepia.vercel.app/bookings", {
+      fetch(`${API_BASE_URL}/bookings`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("access-token")}`
         }
       }).then(res => res.json()),
-      fetch("https://style-decor-server-sepia.vercel.app/decorators").then(res => res.json())
+      fetch(`${API_BASE_URL}/decorators`).then(res => res.json())
     ]).then(([bookings, decoratorsData]) => {
       // Filter: Paid but unassigned bookings
       const unassigned = bookings.filter(b => b.paymentStatus === "Paid" && !b.decoratorName);
@@ -1256,7 +1424,7 @@ const AssignDecorator = () => {
     const decorator = decorators.find(d => d._id === decoratorId);
     if (!decorator) return;
 
-    fetch(`https://style-decor-server-sepia.vercel.app/bookings/assign/${bookingId}`, {
+    fetch(`${API_BASE_URL}/bookings/assign/${bookingId}`, {
       method: "PATCH",
       headers: { 
         "Content-Type": "application/json",
@@ -1352,7 +1520,7 @@ const Analytics = () => {
   });
 
   useEffect(() => {
-    fetch("https://style-decor-server-sepia.vercel.app/bookings", {
+    fetch(`${API_BASE_URL}/bookings`, {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("access-token")}`
       }

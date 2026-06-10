@@ -1,20 +1,77 @@
 import { useState } from "react";
 import { Mail, Phone, MapPin, Clock, Send, Check } from "lucide-react";
+import { useToast } from "../../provider/ToastProvider";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://style-decor-server-sepia.vercel.app";
 
 const Contact = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [errors, setErrors] = useState({});
+  const toast = useToast();
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters.";
+    }
+    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+    if (!formData.subject.trim() || formData.subject.trim().length < 4) {
+      newErrors.subject = "Subject must be at least 4 characters.";
+    }
+    if (!formData.message.trim() || formData.message.trim().length < 10) {
+      newErrors.message = "Message must be at least 10 characters.";
+    }
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fix the validation errors.");
+      return;
+    }
+
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      const response = await fetch(`${API_BASE_URL}/contacts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim(),
+          message: formData.message.trim()
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to send message.");
+      }
+      toast.success("Message sent successfully!");
       setFormSubmitted(true);
       setFormData({ name: "", email: "", subject: "", message: "" });
       setTimeout(() => setFormSubmitted(false), 5000);
-    }, 1200);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "An error occurred while sending your message.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -89,54 +146,74 @@ const Contact = () => {
             Send Us a Message
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-base-content/50 mb-1.5">Your Name</label>
+                <label htmlFor="contact-name" className="block text-xs font-bold uppercase text-base-content/50 mb-1.5">Your Name</label>
                 <input
                   type="text"
+                  name="name"
+                  id="contact-name"
                   required
                   value={formData.name}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                  onChange={handleChange}
                   placeholder="e.g. Adnan Rahman"
-                  className="w-full bg-base-100 border border-base-300 text-base-content placeholder:text-base-content/30 rounded-2xl p-3 focus:outline-none focus:border-primary text-sm"
+                  className={`w-full bg-base-100 border text-base-content placeholder:text-base-content/30 rounded-2xl p-3 focus:outline-none focus:border-primary text-sm ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-base-300'}`}
                 />
+                {errors.name && (
+                  <p className="text-red-500 text-xs mt-1" role="alert">{errors.name}</p>
+                )}
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-base-content/50 mb-1.5">Email Address</label>
+                <label htmlFor="contact-email" className="block text-xs font-bold uppercase text-base-content/50 mb-1.5">Email Address</label>
                 <input
                   type="email"
+                  name="email"
+                  id="contact-email"
                   required
                   value={formData.email}
-                  onChange={e => setFormData({ ...formData, email: e.target.value })}
+                  onChange={handleChange}
                   placeholder="e.g. adnan@gmail.com"
-                  className="w-full bg-base-100 border border-base-300 text-base-content placeholder:text-base-content/30 rounded-2xl p-3 focus:outline-none focus:border-primary text-sm"
+                  className={`w-full bg-base-100 border text-base-content placeholder:text-base-content/30 rounded-2xl p-3 focus:outline-none focus:border-primary text-sm ${errors.email ? 'border-red-500 focus:border-red-500' : 'border-base-300'}`}
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1" role="alert">{errors.email}</p>
+                )}
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-base-content/50 mb-1.5">Subject</label>
+              <label htmlFor="contact-subject" className="block text-xs font-bold uppercase text-base-content/50 mb-1.5">Subject</label>
               <input
                 type="text"
+                name="subject"
+                id="contact-subject"
                 required
                 value={formData.subject}
-                onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                onChange={handleChange}
                 placeholder="e.g. Wedding Decor Consultation"
-                className="w-full bg-base-100 border border-base-300 text-base-content placeholder:text-base-content/30 rounded-2xl p-3 focus:outline-none focus:border-primary text-sm"
+                className={`w-full bg-base-100 border text-base-content placeholder:text-base-content/30 rounded-2xl p-3 focus:outline-none focus:border-primary text-sm ${errors.subject ? 'border-red-500 focus:border-red-500' : 'border-base-300'}`}
               />
+              {errors.subject && (
+                <p className="text-red-500 text-xs mt-1" role="alert">{errors.subject}</p>
+              )}
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-base-content/50 mb-1.5">Message / Details</label>
+              <label htmlFor="contact-message" className="block text-xs font-bold uppercase text-base-content/50 mb-1.5">Message / Details</label>
               <textarea
+                name="message"
+                id="contact-message"
                 rows="4"
                 required
                 value={formData.message}
-                onChange={e => setFormData({ ...formData, message: e.target.value })}
+                onChange={handleChange}
                 placeholder="Describe your design package requirements, budget, venue, or questions..."
-                className="w-full bg-base-100 border border-base-300 text-base-content placeholder:text-base-content/30 rounded-2xl p-3 focus:outline-none focus:border-primary text-sm"
+                className={`w-full bg-base-100 border text-base-content placeholder:text-base-content/30 rounded-2xl p-3 focus:outline-none focus:border-primary text-sm ${errors.message ? 'border-red-500 focus:border-red-500' : 'border-base-300'}`}
               />
+              {errors.message && (
+                <p className="text-red-500 text-xs mt-1" role="alert">{errors.message}</p>
+              )}
             </div>
 
             {formSubmitted && (

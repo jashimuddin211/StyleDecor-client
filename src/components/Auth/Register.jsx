@@ -10,6 +10,9 @@ import {
 } from "react-icons/fa";
 
 import useAuth from "../../hooks/useAuth";
+import { useToast } from "../../provider/ToastProvider";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://style-decor-server-sepia.vercel.app";
 
 const Register = () => {
 
@@ -22,6 +25,9 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const toast = useToast();
 
   // ImageBB API Key
   const imageHostingKey =
@@ -33,24 +39,40 @@ const Register = () => {
     e.preventDefault();
 
     setError("");
+    setErrors({});
 
     const form = e.target;
 
-    const name = form.name.value;
+    const name = form.name.value.trim();
 
-    const email = form.email.value;
+    const email = form.email.value.trim();
 
     const password = form.password.value;
 
     const photo = form.photo.files[0];
 
-    // Password Validation
-    if (password.length < 6) {
-
-      return setError(
-        "Password must be at least 6 characters"
-      );
+    // Client-side Validation
+    const newErrors = {};
+    if (!name || name.length < 2) {
+      newErrors.name = "Name must be at least 2 characters";
     }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!password || password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    if (!photo) {
+      newErrors.photo = "Profile image is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fix the errors in the registration form.");
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       let photoURL = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80";
@@ -78,7 +100,7 @@ const Register = () => {
         }
       }
 
-      // Create User
+      // Create User in Firebase
       const result = await createUser(
         email,
         password
@@ -86,26 +108,21 @@ const Register = () => {
 
       console.log(result.user);
 
-      // Update User Profile
+      // Update User Profile in Firebase
       await updateUser(name, photoURL);
 
       // User Data for Database
       const userInfo = {
-
         name,
         email,
         photoURL,
-
-        // default role
         role: "user",
-
         createdAt: new Date(),
-
       };
 
       // Save User To Database
-      await fetch(
-        "https://style-decor-server-sepia.vercel.app/users",
+      const res = await fetch(
+        `${API_BASE_URL}/users`,
         {
           method: "POST",
 
@@ -117,6 +134,12 @@ const Register = () => {
         }
       );
 
+      const dbResponse = await res.json();
+      if (!res.ok) {
+        throw new Error(dbResponse.message || "Failed to register user details in database.");
+      }
+
+      toast.success("Account created successfully!");
       navigate("/");
 
     }
@@ -126,7 +149,10 @@ const Register = () => {
       console.log(error);
 
       setError(error.message);
+      toast.error(error.message || "Registration failed. Please try again.");
 
+    } finally {
+      setSubmitting(false);
     }
 
   };
@@ -139,7 +165,7 @@ const Register = () => {
       .then(result => {
 
         console.log(result.user);
-
+        toast.success("Login with Google successful!");
         navigate("/");
 
       })
@@ -147,6 +173,7 @@ const Register = () => {
       .catch(error => {
 
         console.log(error);
+        toast.error("Google login failed.");
 
       });
 
@@ -181,12 +208,13 @@ const Register = () => {
         <form
           onSubmit={handleRegister}
           className="space-y-5"
+          noValidate
         >
 
           {/* Name */}
           <div>
 
-            <label className="label">
+            <label className="label" htmlFor="reg-name">
 
               <span className="label-text">
                 Full Name
@@ -197,17 +225,23 @@ const Register = () => {
             <input
               type="text"
               name="name"
+              id="reg-name"
               placeholder="Enter your name"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${errors.name ? 'border-red-500 focus:border-red-500' : ''}`}
               required
             />
+            {errors.name && (
+              <p className="text-red-500 text-xs mt-1" role="alert">
+                {errors.name}
+              </p>
+            )}
 
           </div>
 
           {/* Photo */}
           <div>
 
-            <label className="label">
+            <label className="label" htmlFor="reg-photo">
 
               <span className="label-text">
                 Profile Image
@@ -218,16 +252,22 @@ const Register = () => {
             <input
               type="file"
               name="photo"
-              className="file-input file-input-bordered w-full"
+              id="reg-photo"
+              className={`file-input file-input-bordered w-full ${errors.photo ? 'border-red-500 focus:border-red-500' : ''}`}
               required
             />
+            {errors.photo && (
+              <p className="text-red-500 text-xs mt-1" role="alert">
+                {errors.photo}
+              </p>
+            )}
 
           </div>
 
           {/* Email */}
           <div>
 
-            <label className="label">
+            <label className="label" htmlFor="reg-email">
 
               <span className="label-text">
                 Email
@@ -238,17 +278,23 @@ const Register = () => {
             <input
               type="email"
               name="email"
+              id="reg-email"
               placeholder="Enter your email"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
               required
             />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1" role="alert">
+                {errors.email}
+              </p>
+            )}
 
           </div>
 
           {/* Password */}
           <div>
 
-            <label className="label">
+            <label className="label" htmlFor="reg-password">
 
               <span className="label-text">
                 Password
@@ -259,10 +305,16 @@ const Register = () => {
             <input
               type="password"
               name="password"
+              id="reg-password"
               placeholder="Enter your password"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
               required
             />
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1" role="alert">
+                {errors.password}
+              </p>
+            )}
 
           </div>
 
@@ -280,9 +332,15 @@ const Register = () => {
           {/* Register Button */}
           <button
             type="submit"
-            className="btn btn-primary w-full"
+            disabled={submitting}
+            className="btn btn-primary w-full flex items-center justify-center gap-2"
           >
-            Register
+            {submitting ? (
+              <>
+                <span className="loading loading-spinner loading-xs"></span>
+                Registering...
+              </>
+            ) : "Register"}
           </button>
 
         </form>
