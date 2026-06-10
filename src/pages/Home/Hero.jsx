@@ -107,7 +107,7 @@ export default function Hero() {
         <motion.div
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 3, repeat: Infinity }}
-          className="absolute top-10 right-10 bg-white shadow-lg p-3 rounded-xl"
+          className="absolute top-10 right-10 bg-base-100 text-base-content border border-base-300 shadow-lg p-3 rounded-2xl"
         >
           💍 Wedding Experts
         </motion.div>
@@ -115,7 +115,7 @@ export default function Hero() {
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 3.5, repeat: Infinity }}
-          className="absolute bottom-10 left-10 bg-white shadow-lg p-3 rounded-xl"
+          className="absolute bottom-10 left-10 bg-base-100 text-base-content border border-base-300 shadow-lg p-3 rounded-2xl"
         >
           🎉 Event Planning
         </motion.div>

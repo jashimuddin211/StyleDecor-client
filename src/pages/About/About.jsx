@@ -49,15 +49,16 @@ const About = () => {
 
   return (
     <div className="space-y-20 py-10 px-4 max-w-7xl mx-auto animate-fadeIn">
+
       {/* HERO HEADER */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
-        <span className="px-3.5 py-1.5 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-widest rounded-full border border-blue-100">
+        <span className="px-3.5 py-1.5 bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest rounded-full border border-primary/20">
           Who We Are
         </span>
-        <h1 className="text-4xl md:text-5xl font-black text-gray-950 tracking-tight leading-none mt-2">
+        <h1 className="text-4xl md:text-5xl font-black text-base-content tracking-tight leading-none mt-2">
           Crafting Breathtaking Spaces & Event Masterpieces
         </h1>
-        <p className="text-gray-500 text-base md:text-lg leading-relaxed mt-4">
+        <p className="text-base-content/60 text-base md:text-lg leading-relaxed mt-4">
           StyleDecor is a premier event decoration platform designed to bridge the gap between premium design visions and approved on-site decorators. We turn venues into unforgettable visual memories.
         </p>
       </div>
@@ -65,13 +66,13 @@ const About = () => {
       {/* METRICS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((item, idx) => (
-          <div key={idx} className="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm flex items-center gap-4 hover:shadow-md transition duration-200">
-            <div className="p-3 bg-gray-50 rounded-2xl border border-gray-50">
+          <div key={idx} className="bg-base-200 border border-base-300 p-6 rounded-3xl shadow-sm flex items-center gap-4 hover:shadow-md transition duration-200">
+            <div className="p-3 bg-base-300 rounded-2xl">
               {item.icon}
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{item.label}</p>
-              <h3 className="text-2xl font-black text-gray-950 mt-0.5">{item.value}</h3>
+              <p className="text-xs font-bold text-base-content/50 uppercase tracking-wider">{item.label}</p>
+              <h3 className="text-2xl font-black text-base-content mt-0.5">{item.value}</h3>
             </div>
           </div>
         ))}
@@ -80,18 +81,18 @@ const About = () => {
       {/* CORE VALUES */}
       <div className="space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h2 className="text-3xl font-extrabold text-gray-950 tracking-tight">Our Core Principles</h2>
-          <p className="text-gray-400 text-sm">We maintain premium standards to deliver consistency in every project.</p>
+          <h2 className="text-3xl font-extrabold text-base-content tracking-tight">Our Core Principles</h2>
+          <p className="text-base-content/50 text-sm">We maintain premium standards to deliver consistency in every project.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {values.map((val, idx) => (
-            <div key={idx} className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm flex flex-col gap-4 hover:shadow-md transition duration-200">
-              <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-50 shadow-sm shrink-0">
+            <div key={idx} className="bg-base-200 border border-base-300 rounded-3xl p-8 shadow-sm flex flex-col gap-4 hover:shadow-md transition duration-200">
+              <div className="w-12 h-12 rounded-2xl bg-base-300 flex items-center justify-center shadow-sm shrink-0">
                 {val.icon}
               </div>
-              <h3 className="font-extrabold text-xl text-gray-950 mt-2">{val.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{val.desc}</p>
+              <h3 className="font-extrabold text-xl text-base-content mt-2">{val.title}</h3>
+              <p className="text-base-content/60 text-sm leading-relaxed">{val.desc}</p>
             </div>
           ))}
         </div>
@@ -100,27 +101,28 @@ const About = () => {
       {/* MEET THE CREATIVES */}
       <div className="space-y-12 pb-10">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h2 className="text-3xl font-extrabold text-gray-950 tracking-tight">Meet the Creatives</h2>
-          <p className="text-gray-400 text-sm">The visionaries behind our premium event catalogues.</p>
+          <h2 className="text-3xl font-extrabold text-base-content tracking-tight">Meet the Creatives</h2>
+          <p className="text-base-content/50 text-sm">The visionaries behind our premium event catalogues.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {team.map((person, idx) => (
-            <div key={idx} className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm flex flex-col hover:shadow-md transition duration-200">
+            <div key={idx} className="bg-base-200 border border-base-300 rounded-3xl overflow-hidden shadow-sm flex flex-col hover:shadow-md transition duration-200">
               <div className="h-64 overflow-hidden relative">
                 <img src={person.image} alt={person.name} className="w-full h-full object-cover" />
-                <span className="absolute bottom-4 left-4 bg-white/95 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-blue-700 shadow-sm border border-gray-50">
+                <span className="absolute bottom-4 left-4 bg-base-100/95 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-primary shadow-sm border border-base-300">
                   {person.role}
                 </span>
               </div>
               <div className="p-6 flex-1 flex flex-col gap-2">
-                <h3 className="font-bold text-lg text-gray-950">{person.name}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{person.bio}</p>
+                <h3 className="font-bold text-lg text-base-content">{person.name}</h3>
+                <p className="text-sm text-base-content/60 leading-relaxed">{person.bio}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
+
     </div>
   );
 };
