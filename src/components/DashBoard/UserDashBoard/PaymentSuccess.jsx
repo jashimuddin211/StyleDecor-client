@@ -24,8 +24,8 @@ const PaymentSuccess = () => {
 
   useEffect(() => {
     if (bookingId && sessionId) {
-      // Hit the server's payment confirmation endpoint
-      fetch("https://style-decor-server-sepia.vercel.app/bookings/confirm-payment", {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+      fetch(`${API_BASE_URL}/bookings/confirm-payment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -12,7 +12,7 @@ export default function StatsSection() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const baseUrl = import.meta.env.VITE_API_URL || "https://style-decor-server-sepia.vercel.app";
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
       try {
         const res = await fetch(`${baseUrl}/stats`);
         if (!res.ok) throw new Error("Stats endpoint not available");

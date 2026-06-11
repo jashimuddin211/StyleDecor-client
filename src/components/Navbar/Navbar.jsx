@@ -27,6 +27,7 @@ const Navbar = () => {
     { to: "/services", label: "Services" },
     { to: "/about", label: "About" },
     { to: "/contact", label: "Contact" },
+    { to: "/help", label: "Help" },
   ];
 
   const navLinks = links.map(({ to, label }) => (
@@ -109,7 +110,7 @@ const Navbar = () => {
 
           {/* LOGO */}
           <Link to="/" className="flex items-center gap-2">
-            <img src="logo.png" className="w-10 h-10" alt="logo" />
+            <img src="/logo.png" className="w-10 h-10" alt="logo" />
             <span className="text-lg font-bold text-base-content">StyleDecor</span>
           </Link>
         </div>

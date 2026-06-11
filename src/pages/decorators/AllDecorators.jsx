@@ -31,7 +31,8 @@ export default function AllDecorators() {
   useEffect(() => {
     const fetchDecorators = async () => {
       try {
-        const res = await fetch("https://style-decor-server-sepia.vercel.app/decorators");
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+        const res = await fetch(`${API_BASE_URL}/decorators`);
         if (!res.ok) throw new Error("API error");
         const data = await res.json();
         // Show only approved decorators

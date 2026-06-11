@@ -12,7 +12,7 @@ import {
 import useAuth from "../../hooks/useAuth";
 import { useToast } from "../../provider/ToastProvider";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://style-decor-server-sepia.vercel.app";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const Register = () => {
 
@@ -61,6 +61,8 @@ const Register = () => {
     }
     if (!password || password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
+    } else if (!/(?=.*[A-Za-z])(?=.*\d)/.test(password)) {
+      newErrors.password = "Password must contain both letters and numbers";
     }
     if (!photo) {
       newErrors.photo = "Profile image is required";
@@ -77,7 +79,6 @@ const Register = () => {
     try {
       let photoURL = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80";
 
-      
       if (imageHostingKey && photo) {
         try {
           const formData = new FormData();
@@ -100,44 +101,13 @@ const Register = () => {
         }
       }
 
-      // Create User in Firebase
-      const result = await createUser(
+      // Create User via our unified Auth API
+      await createUser(
         email,
-        password
-      );
-
-      console.log(result.user);
-
-      // Update User Profile in Firebase
-      await updateUser(name, photoURL);
-
-      // User Data for Database
-      const userInfo = {
+        password,
         name,
-        email,
-        photoURL,
-        role: "user",
-        createdAt: new Date(),
-      };
-
-      // Save User To Database
-      const res = await fetch(
-        `${API_BASE_URL}/users`,
-        {
-          method: "POST",
-
-          headers: {
-            "content-type": "application/json",
-          },
-
-          body: JSON.stringify(userInfo),
-        }
+        photoURL
       );
-
-      const dbResponse = await res.json();
-      if (!res.ok) {
-        throw new Error(dbResponse.message || "Failed to register user details in database.");
-      }
 
       toast.success("Account created successfully!");
       navigate("/");

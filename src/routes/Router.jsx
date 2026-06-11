@@ -8,6 +8,7 @@ import DashboardLayout from "../components/DashBoard/DashboardLayout";
 import Home from "../pages/Home/Home";
 import About from "../pages/About/About";
 import Contact from "../pages/Contact/Contact";
+import HelpSupport from "../pages/HelpSupport/HelpSupport";
 import AllDecorators from "../pages/decorators/AllDecorators";
 import Login from "../components/Auth/Login";
 import Register from "../components/Auth/Register";
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
       {
         path: "/decorators",
         element: <AllDecorators />,
+      },
+      {
+        path: "/help",
+        element: <HelpSupport />,
       },
     ],
   },

@@ -3,11 +3,7 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
   signOut,
-  updateProfile,
 } from "firebase/auth";
 
 import app from "../firebase/firebase.config";
@@ -15,101 +11,175 @@ import { AuthContext } from "./AuthContext";
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
+// Pure JS JWT parser to check token expiration
+const parseJwt = (token) => {
+  try {
+    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+  } catch (e) {
+    return null;
+  }
+};
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Register
-  const createUser = (email, password) => {
+  // Register User via custom JWT backend
+  const createUser = async (email, password, name, photoURL) => {
     setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, photoURL })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+      if (data.token) {
+        localStorage.setItem("access-token", data.token);
+      }
+      const loggedUser = {
+        displayName: data.user.name,
+        email: data.user.email,
+        photoURL: data.user.photoURL,
+        role: data.user.role || "user"
+      };
+      setUser(loggedUser);
+      return { user: loggedUser };
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Login
-  const loginUser = (email, password) => {
+  // Login User via custom JWT backend
+  const loginUser = async (email, password) => {
     setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+      if (data.token) {
+        localStorage.setItem("access-token", data.token);
+      }
+      const loggedUser = {
+        displayName: data.user.name,
+        email: data.user.email,
+        photoURL: data.user.photoURL,
+        role: data.user.role || "user"
+      };
+      setUser(loggedUser);
+      return { user: loggedUser };
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Google Login
-  const googleLogin = () => {
+  // Google Login via Firebase popup + custom JWT backend
+  const googleLogin = async () => {
     setLoading(true);
-    return signInWithPopup(auth, googleProvider);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const firebaseUser = result.user;
+      
+      const res = await fetch(`${API_BASE_URL}/api/auth/google-login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: firebaseUser.email,
+          name: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Google authentication backend integration failed");
+      }
+      if (data.token) {
+        localStorage.setItem("access-token", data.token);
+      }
+      const loggedUser = {
+        displayName: data.user.name,
+        email: data.user.email,
+        photoURL: data.user.photoURL,
+        role: data.user.role || "user"
+      };
+      setUser(loggedUser);
+      return { user: loggedUser };
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Logout
-  const logoutUser = () => {
+  const logoutUser = async () => {
     setLoading(true);
+    localStorage.removeItem("access-token");
+    setUser(null);
+    setLoading(false);
     return signOut(auth);
   };
 
-  // Update Profile
-  const updateUser = (name, photo) => {
-    return updateProfile(auth.currentUser, {
-      displayName: name,
-      photoURL: photo,
-    });
+  // Update Profile wrapper for compatibility
+  const updateUser = async (name, photo) => {
+    setUser((prev) => (prev ? { ...prev, displayName: name, photoURL: photo } : null));
+    return Promise.resolve();
   };
 
+  // Initialize auth state from JWT in localStorage
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      try {
-        if (!currentUser) {
-          setUser(null);
-          localStorage.removeItem("access-token");
-          return;
-        }
-
-        let role = "user";
-
-        if (currentUser.email) {
-          // 1. Fetch user role
+    const initializeAuth = async () => {
+      const token = localStorage.getItem("access-token");
+      if (token) {
+        const decoded = parseJwt(token);
+        if (decoded && decoded.exp * 1000 > Date.now()) {
           try {
-            const res = await fetch(
-              `https://style-decor-server-sepia.vercel.app/users/${currentUser.email}`
-            );
-
+            const res = await fetch(`${API_BASE_URL}/users/${decoded.email}`);
             if (res.ok) {
               const dbUser = await res.json();
-              role = dbUser?.role || "user";
-            }
-          } catch (err) {
-            console.log("Role fetch error:", err);
-          }
-
-          // 2. Fetch JWT access token
-          try {
-            const tokenRes = await fetch("https://style-decor-server-sepia.vercel.app/jwt", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email: currentUser.email })
-            });
-
-            if (tokenRes.ok) {
-              const tokenData = await tokenRes.json();
-              if (tokenData.token) {
-                localStorage.setItem("access-token", tokenData.token);
+              if (dbUser) {
+                setUser({
+                  displayName: dbUser.name,
+                  email: dbUser.email,
+                  photoURL: dbUser.photoURL,
+                  role: dbUser.role || "user"
+                });
+              } else {
+                localStorage.removeItem("access-token");
+                setUser(null);
               }
+            } else {
+              localStorage.removeItem("access-token");
+              setUser(null);
             }
           } catch (err) {
-            console.log("JWT fetch error:", err);
+            console.log("Failed to fetch user on load:", err);
+            setUser({
+              displayName: decoded.name || "User",
+              email: decoded.email,
+              role: decoded.role || "user"
+            });
           }
+        } else {
+          localStorage.removeItem("access-token");
+          setUser(null);
         }
-
-        setUser({
-          ...currentUser,
-          role,
-        });
-      } catch (err) {
-        console.log(err);
+      } else {
         setUser(null);
-      } finally {
-        setLoading(false);
       }
-    });
+      setLoading(false);
+    };
 
-    return () => unsubscribe();
+    initializeAuth();
   }, []);
 
   const authInfo = {

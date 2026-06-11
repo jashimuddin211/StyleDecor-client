@@ -134,8 +134,9 @@ export default function TopDecorators() {
   useEffect(() => {
     const fetchDecorators = async () => {
       try {
+        const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
         const res = await fetch(
-          "https://style-decor-server-sepia.vercel.app/decorators/top?limit=6"
+          `${API_BASE_URL}/decorators/top?limit=6`
         );
         if (!res.ok) throw new Error("API error");
         const data = await res.json();

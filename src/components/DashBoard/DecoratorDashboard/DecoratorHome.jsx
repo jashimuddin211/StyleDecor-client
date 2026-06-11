@@ -17,28 +17,57 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
 const DecoratorHome = () => {
   const { user } = useContext(AuthContext);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.email) {
-      fetch(`https://style-decor-server-sepia.vercel.app/bookings?decoratorEmail=${user.email}`, {
+    let active = true;
+
+    const fetchBookings = (retries = 5) => {
+      if (!user?.email) return;
+
+      const token = localStorage.getItem("access-token");
+      if (!token && retries > 0) {
+        setTimeout(() => {
+          if (active) fetchBookings(retries - 1);
+        }, 200);
+        return;
+      }
+
+      fetch(`${API_BASE_URL}/bookings?decoratorEmail=${user.email}`, {
         headers: {
-          "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+          "Authorization": `Bearer ${token || ""}`
         }
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Server returned status ${res.status}`);
+          }
+          return res.json();
+        })
         .then((data) => {
-          setBookings(data);
-          setLoading(false);
+          if (active) {
+            setBookings(Array.isArray(data) ? data : []);
+            setLoading(false);
+          }
         })
         .catch((err) => {
           console.error("Error fetching decorator bookings:", err);
-          setLoading(false);
+          if (active) {
+            setLoading(false);
+          }
         });
-    }
+    };
+
+    fetchBookings();
+
+    return () => {
+      active = false;
+    };
   }, [user]);
 
   // Compute Today's Date in YYYY-MM-DD format (local timezone)

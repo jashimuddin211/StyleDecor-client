@@ -14,6 +14,8 @@ import {
   ChevronRight
 } from "lucide-react";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
 const PaymentHistory = () => {
   const { user } = useContext(AuthContext);
   const toast = useToast();
@@ -43,7 +45,7 @@ const PaymentHistory = () => {
       }
 
       try {
-        const res = await fetch(`https://style-decor-server-sepia.vercel.app/bookings?email=${user.email}`, {
+        const res = await fetch(`${API_BASE_URL}/bookings?email=${user.email}`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -78,7 +80,7 @@ const PaymentHistory = () => {
   // Redirection to Stripe Checkout
   const handlePay = (item) => {
     setPayingId(item._id);
-    fetch("https://style-decor-server-sepia.vercel.app/create-checkout-session", {
+    fetch(`${API_BASE_URL}/create-checkout-session`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

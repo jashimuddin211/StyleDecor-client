@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Mail, Phone, MapPin, Clock, Send, Check } from "lucide-react";
 import { useToast } from "../../provider/ToastProvider";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://style-decor-server-sepia.vercel.app";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 const Contact = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);

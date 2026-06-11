@@ -1,8 +1,23 @@
 import { NavLink, Routes, Route, Outlet } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "../../../provider/ToastProvider";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://style-decor-server-sepia.vercel.app";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 import { 
   LayoutDashboard, 
   Users, 
@@ -191,7 +206,11 @@ const DashboardHome = () => {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API_BASE_URL}/users`).then(res => res.json()),
+      fetch(`${API_BASE_URL}/users`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+        }
+      }).then(res => res.json()),
       fetch(`${API_BASE_URL}/bookings`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("access-token")}`
@@ -199,13 +218,17 @@ const DashboardHome = () => {
       }).then(res => res.json()),
       fetch(`${API_BASE_URL}/decorators`).then(res => res.json())
     ]).then(([users, bookings, decorators]) => {
-      const paidBookings = bookings.filter(b => b.paymentStatus === "Paid");
+      const usersList = Array.isArray(users) ? users : [];
+      const bookingsList = Array.isArray(bookings) ? bookings : [];
+      const decoratorsList = Array.isArray(decorators) ? decorators : [];
+
+      const paidBookings = bookingsList.filter(b => b.paymentStatus === "Paid");
       const totalRevenue = paidBookings.reduce((sum, b) => sum + (b.price || 0), 0);
       setStats({
-        users: users.length,
-        bookings: bookings.length,
+        users: usersList.length,
+        bookings: bookingsList.length,
         revenue: totalRevenue,
-        decorators: decorators.length
+        decorators: decoratorsList.length
       });
     }).catch(err => console.log("Stats fetch error:", err));
   }, []);
@@ -264,14 +287,19 @@ const ManageUsers = () => {
 
   const fetchUsers = () => {
     setLoading(true);
-    fetch(`${API_BASE_URL}/users`)
+    fetch(`${API_BASE_URL}/users`, {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+      }
+    })
       .then((res) => res.json())
       .then((data) => {
-        setUsers(data);
+        setUsers(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching users:", err);
+        setUsers([]);
         setLoading(false);
       });
   };
@@ -287,6 +315,9 @@ const ManageUsers = () => {
 
     fetch(`${API_BASE_URL}/users/decorator/${email}`, {
       method: "PATCH",
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("access-token")}`
+      }
     })
       .then((res) => res.json())
       .then((data) => {
@@ -1519,6 +1550,8 @@ const Analytics = () => {
     average: 0
   });
 
+  const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3a86ff'];
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/bookings`, {
       headers: {
@@ -1536,7 +1569,6 @@ const Analytics = () => {
       .catch(err => console.error(err));
   }, []);
 
-  
   const categoryCounts = bookings.reduce((acc, b) => {
     const name = b.serviceName || "Other";
     acc[name] = (acc[name] || 0) + 1;
@@ -1550,7 +1582,6 @@ const Analytics = () => {
     percentage: totalBookingsCount > 0 ? (count / totalBookingsCount) * 100 : 0
   })).sort((a, b) => b.count - a.count);
 
-  // Compute Location Histogram data (bookings by location)
   const locationCounts = bookings.reduce((acc, b) => {
     const loc = b.location ? b.location.charAt(0).toUpperCase() + b.location.slice(1) : "Other";
     acc[loc] = (acc[loc] || 0) + 1;
@@ -1558,7 +1589,19 @@ const Analytics = () => {
   }, {});
 
   const locationData = Object.entries(locationCounts).map(([name, count]) => ({ name, count }));
-  const maxLocationCount = locationData.length > 0 ? Math.max(...locationData.map(d => d.count)) : 1;
+
+  // Line Chart Data: Cumulative Revenue Growth
+  const lineChartData = [...bookings]
+    .filter(b => b.paymentStatus === "Paid" && b.date)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .reduce((acc, curr) => {
+      const runningSum = acc.length > 0 ? acc[acc.length - 1].revenue + (curr.price || 0) : (curr.price || 0);
+      acc.push({
+        date: curr.date,
+        revenue: runningSum
+      });
+      return acc;
+    }, []);
 
   return (
     <div className="space-y-8">
@@ -1608,64 +1651,83 @@ const Analytics = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* SERVICE DEMAND CHART */}
-        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col">
-          <h3 className="text-lg font-bold text-gray-950 mb-6">Service Demand Share</h3>
-
-          {demandData.length === 0 ? (
-            <p className="text-sm text-gray-400 py-10 text-center">No service booking data available</p>
+        {/* LINE CHART: REVENUE OVER TIME */}
+        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col lg:col-span-2">
+          <h3 className="text-lg font-bold text-gray-950 mb-6">Revenue Growth Over Time (Line Chart)</h3>
+          {lineChartData.length === 0 ? (
+            <p className="text-sm text-gray-400 py-10 text-center">No revenue data available</p>
           ) : (
-            <div className="flex-1 flex flex-col justify-center gap-5">
-              {demandData.slice(0, 5).map((item, idx) => (
-                <div key={item.name} className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-semibold text-gray-700">
-                    <span className="truncate max-w-[70%]">{item.name}</span>
-                    <span>{item.count} Bookings ({Math.round(item.percentage)}%)</span>
-                  </div>
-                  {/* SVG Bar Chart representing item */}
-                  <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${
-                        idx === 0 ? "from-blue-500 to-indigo-600" :
-                        idx === 1 ? "from-purple-500 to-pink-500" :
-                        idx === 2 ? "from-emerald-500 to-teal-500" :
-                        "from-amber-500 to-orange-500"
-                      }`}
-                      style={{ width: `${item.percentage}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={lineChartData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="date" stroke="#9ca3af" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} tickFormatter={(v) => `৳${v}`} />
+                  <Tooltip formatter={(value) => [`৳${value.toLocaleString()}`, "Cumulative Revenue"]} />
+                  <Legend />
+                  <Line type="monotone" dataKey="revenue" name="Total Revenue (৳)" stroke="#2563eb" strokeWidth={3} activeDot={{ r: 8 }} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           )}
         </div>
 
-        {/* BOOKING HISTOGRAM (BY LOCATION) */}
+        {/* BAR CHART: BOOKINGS BY LOCATION */}
         <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col">
-          <h3 className="text-lg font-bold text-gray-950 mb-6">Bookings by Location</h3>
-
+          <h3 className="text-lg font-bold text-gray-950 mb-6">Bookings by Location (Bar Chart)</h3>
           {locationData.length === 0 ? (
             <p className="text-sm text-gray-400 py-10 text-center">No location booking data available</p>
           ) : (
-            <div className="flex-1 h-64 flex items-end gap-6 pt-4 px-2 border-b border-gray-100">
-              {locationData.map((item) => {
-                const barHeight = (item.count / maxLocationCount) * 100;
-                return (
-                  <div key={item.name} className="flex-1 flex flex-col items-center gap-3 h-full justify-end group">
-                    <div className="text-xs font-bold text-gray-900 opacity-0 group-hover:opacity-100 transition duration-150">
-                      {item.count}
-                    </div>
-                    {/* SVG/CSS Column representing vertical bar */}
-                    <div 
-                      className="w-8 rounded-t-lg bg-gradient-to-t from-blue-600 to-indigo-400 group-hover:from-blue-700 group-hover:to-indigo-500 shadow-md shadow-blue-50 transition-all duration-300"
-                      style={{ height: `${barHeight * 0.7}%`, minHeight: "10%" }}
-                    />
-                    <div className="text-[11px] font-bold text-gray-400 truncate max-w-full pb-1">
-                      {item.name}
-                    </div>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={locationData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="name" stroke="#9ca3af" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} allowDecimals={false} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="count" name="Bookings Count" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </div>
+
+        {/* PIE CHART: SERVICE DEMAND */}
+        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col">
+          <h3 className="text-lg font-bold text-gray-950 mb-6">Service Demand Share (Pie Chart)</h3>
+          {demandData.length === 0 ? (
+            <p className="text-sm text-gray-400 py-10 text-center">No service booking data available</p>
+          ) : (
+            <div className="h-72 flex flex-col justify-between">
+              <div className="flex-1 min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={demandData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="count"
+                    >
+                      {demandData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value, name, props) => [value, `${props.payload.name} (Bookings)`]} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-2 justify-center text-[10px] font-semibold text-gray-500">
+                {demandData.slice(0, 4).map((entry, idx) => (
+                  <div key={entry.name} className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
+                    <span className="truncate max-w-[85px]">{entry.name}</span>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           )}
         </div>

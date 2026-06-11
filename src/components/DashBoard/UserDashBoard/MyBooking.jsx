@@ -7,6 +7,8 @@ import {
   ClipboardCheck
 } from "lucide-react";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+
 const MyBookings = () => {
 
   const { user } = useContext(AuthContext);
@@ -31,7 +33,7 @@ const MyBookings = () => {
       }
 
       try {
-        const res = await fetch(`https://style-decor-server-sepia.vercel.app/bookings?email=${user.email}`, {
+        const res = await fetch(`${API_BASE_URL}/bookings?email=${user.email}`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -75,7 +77,7 @@ const MyBookings = () => {
     if (!confirmDelete) return;
 
 
-    fetch(`https://style-decor-server-sepia.vercel.app/bookings/${id}`, {
+    fetch(`${API_BASE_URL}/bookings/${id}`, {
 
       method: "DELETE",
       headers: {
