@@ -16,6 +16,20 @@ Server Side Live Link: `https://style-decor-server-2b37hlnh6-jashimuddin211s-pro
 
 ---
 
+## Demo login
+
+Name: System Admin
+Email: admin@styledecor.com
+Password: password123
+2. Customer (User) Account
+Name: Jane Customer
+Email: customer@styledecor.com
+Password: password123
+3. Decorator Account
+Name: John Decorator
+Email: decorator@styledecor.com
+Password: password123
+
 ## Features
 
 ### Authentication & Authorization
