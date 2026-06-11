@@ -10,9 +10,9 @@ The system also provides separate dashboards for users, decorators, and admins t
 
 ## Live Website
 
-Client Side Live Link: ``
+Client Side Live Link: `https://deluxe-treacle-e714f6.netlify.app/`
 
-Server Side Live Link: ``
+Server Side Live Link: `https://style-decor-server-2b37hlnh6-jashimuddin211s-projects.vercel.app/`
 
 ---
 
